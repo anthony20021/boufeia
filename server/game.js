@@ -179,15 +179,16 @@ export class Room {
     this.imageStatus = {};
     this.abandonedReason = null;
     this.log = [];
+    const startBudget = randomInt(config.budgetMin, config.budgetMax + 1); // même budget pour tous
     for (const p of this.players) {
-      p.startBudget = randomInt(config.budgetMin, config.budgetMax + 1);
-      p.budget = p.startBudget;
+      p.startBudget = startBudget;
+      p.budget = startBudget;
       p.plate = [];
       p.chops = 0;
       p.rematch = false;
     }
     this.addLog(`🎲 Nouvelle partie : ${this.theme.emoji} ${this.theme.name} !`);
-    this.addLog(`💰 Budgets : ${this.players.map((p) => `${p.name} ${p.budget} €`).join(', ')}`);
+    this.addLog(`💰 Budget de départ : ${this.players[0].budget} € chacun`);
     this.phase = 'intro';
     this.setPhaseTimer(INTRO_MS, () => this.nextRound());
     this.broadcast();
@@ -205,6 +206,7 @@ export class Room {
 
   startAuction() {
     const item = this.items[this.round - 1];
+    this.clearPhaseTimer(); // enchère sans limite de temps
     this.phase = 'auction';
     this.lastResult = null;
     this.auction = { item, bid: 0, leaderId: null, passed: new Set() };
@@ -213,8 +215,7 @@ export class Room {
     }
     this.addLog(`🛎️ Round ${this.round} : ${item.emoji} ${item.name} aux enchères !`);
     if (this.checkAuctionEnd()) return;
-    this.setPhaseTimer(config.auctionSeconds * 1000, () => this.endAuction());
-    this.broadcast();
+    this.broadcast(); // pas de chrono : l'enchère se termine quand les joueurs passent
   }
 
   bid(player, amount) {
@@ -242,12 +243,6 @@ export class Room {
       }
     }
     if (this.checkAuctionEnd()) return;
-
-    // Chaque surenchère laisse au moins quelques secondes à l'adversaire
-    const extension = config.bidExtensionSeconds * 1000;
-    if (this.deadline - Date.now() < extension) {
-      this.setPhaseTimer(extension, () => this.endAuction());
-    }
     this.broadcast();
   }
 

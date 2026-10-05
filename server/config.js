@@ -14,7 +14,7 @@ const int = (name, defaultValue, min, max) => {
 
 const budgetMin = int('BUDGET_MIN', 15, 1, 1000);
 const bonusMin = int('MINIGAME_BONUS_MIN', 5, 0, 1000);
-const totalRounds = int('TOTAL_ROUNDS', 10, 1, 30);
+const totalRounds = int('TOTAL_ROUNDS', 16, 1, 30);
 const imageMode = String(process.env.IMAGE_MODE || 'both').trim();
 
 export const config = {
@@ -36,7 +36,5 @@ export const config = {
   totalRounds,
   minigameRound: int('MINIGAME_ROUND', 7, 1, totalRounds),
   bonusMin,
-  bonusMax: int('MINIGAME_BONUS_MAX', 10, bonusMin, 1000),
-  auctionSeconds: int('AUCTION_SECONDS', 15, 3, 300),
-  bidExtensionSeconds: int('BID_EXTENSION_SECONDS', 6, 1, 60)
+  bonusMax: int('MINIGAME_BONUS_MAX', 10, bonusMin, 1000)
 };

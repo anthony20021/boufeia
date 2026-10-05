@@ -84,8 +84,6 @@ const logEntries = computed(() => [...game.value.log].reverse());
           <template v-else>Aucune offre · départ à 1 €</template>
         </div>
 
-        <TimerBar label="Adjugé dans" :urgent-below="3" />
-
         <div class="bid-controls">
           <p v-if="iPassed" class="status-msg">Vous avez passé sur cet aliment.</p>
           <p v-else-if="iLead" class="status-msg success">Vous menez avec {{ auction.bid }} €, à l'adversaire de suivre !</p>

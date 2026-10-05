@@ -5,7 +5,7 @@ import { useGame } from '../composables/useGame.js';
 const { state, createRoom, joinRoom, savedName } = useGame();
 const name = ref(savedName());
 const code = ref('');
-const rules = ref({ budgetMin: 15, budgetMax: 30, totalRounds: 10, minigameRound: 7, bonusMin: 5, bonusMax: 10 });
+const rules = ref({ budgetMin: 15, budgetMax: 30, totalRounds: 16, minigameRound: 7, bonusMin: 5, bonusMax: 10 });
 
 const canPlay = computed(() => name.value.trim().length > 0 && state.connection === 'open');
 
@@ -68,9 +68,9 @@ function join() {
     <div class="card rules">
       <h2>Comment on joue ?</h2>
       <ol>
-        <li>Chaque chef reçoit un budget tiré au sort entre <strong>{{ rules.budgetMin }} et {{ rules.budgetMax }} €</strong>, et un plat à composer est imposé (burger, tacos, sandwich, salade ou pizza).</li>
+        <li>Les deux chefs partent avec le même budget, tiré au sort entre <strong>{{ rules.budgetMin }} et {{ rules.budgetMax }} €</strong>, et un plat à composer est imposé (burger, tacos, sandwich, salade ou pizza).</li>
         <li>À chaque round, un aliment est mis aux enchères : « Je le prends pour 1 € ! — Non, moi 2 € ! ». Le plus offrant l'ajoute à son plat.</li>
-        <li>Chaque surenchère relance le chrono. « Passer » abandonne l'aliment à l'adversaire.</li>
+        <li>Pas de chrono : on surenchérit tant qu'on veut, et l'enchère se termine quand un joueur « laisse tomber » (passer abandonne l'aliment à l'adversaire).</li>
         <li>Au round {{ rules.minigameRound }}, mini-jeu surprise : le gagnant empoche <strong>{{ rules.bonusMin }} à {{ rules.bonusMax }} €</strong> de plus.</li>
         <li>Après {{ rules.totalRounds }} rounds, le chef IA désigne le meilleur plat, puis l'IA le prend en photo.</li>
       </ol>

@@ -33,8 +33,7 @@ app.get('/api/rules', (req, res) => {
     totalRounds: config.totalRounds,
     minigameRound: config.minigameRound,
     bonusMin: config.bonusMin,
-    bonusMax: config.bonusMax,
-    auctionSeconds: config.auctionSeconds
+    bonusMax: config.bonusMax
   });
 });
 
