@@ -1,0 +1,25 @@
+{
+  "name": "gennourrituregame",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Jeu d'enchères culinaires à 2 joueurs (WebSocket + Vue), jugé et photographié par l'IA",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n serveur,client -c yellow,cyan \"node --watch server/index.js\" \"vite\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "vue": "^3.5.43",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.9",
+    "concurrently": "^10.0.5",
+    "vite": "^8.3.2"
+  }
+}
