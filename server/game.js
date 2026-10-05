@@ -13,6 +13,9 @@ const MINIGAME_RESULT_MS = 5000;
 const MINIGAME_BROADCAST_MS = 200;
 const CHOP_MIN_INTERVAL_MS = 50; // 20 coupes/s maximum (anti-script)
 const LOG_SIZE = 8;
+const CHAT_HISTORY = 50;
+const CHAT_MAX_LENGTH = 200;
+const CHAT_MIN_INTERVAL_MS = 400;
 
 export class GameError extends Error {}
 
@@ -53,6 +56,8 @@ export class Room {
     this.abandonedReason = null;
     this.log = [];
     this.logSeq = 0;
+    this.chat = [];
+    this.chatSeq = 0;
     this.timer = null;
     this.deadline = null;
     this.timerTotal = 0;
@@ -86,6 +91,7 @@ export class Room {
       plate: [],
       chops: 0,
       lastChopAt: 0,
+      lastChatAt: 0,
       rematch: false
     };
     this.players.push(player);
@@ -150,6 +156,7 @@ export class Room {
       case 'pass': return this.pass(player);
       case 'chop': return this.chop(player);
       case 'rematch': return this.voteRematch(player);
+      case 'chat': return this.say(player, msg.text);
       default: throw new GameError('Action inconnue');
     }
   }
@@ -430,6 +437,21 @@ export class Room {
     }
   }
 
+  // --- Tchat (le texte est nettoyé ici ; le client l'affiche sans HTML) ---
+
+  say(player, text) {
+    const clean = String(text ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, CHAT_MAX_LENGTH);
+    if (!clean) return;
+    const now = Date.now();
+    if (now - player.lastChatAt < CHAT_MIN_INTERVAL_MS) throw new GameError('Doucement, vous écrivez trop vite');
+    player.lastChatAt = now;
+
+    const message = { id: ++this.chatSeq, playerId: player.id, name: player.name, text: clean };
+    this.chat.push(message);
+    if (this.chat.length > CHAT_HISTORY) this.chat.shift();
+    for (const p of this.players) this.sendTo(p, { type: 'chat', message });
+  }
+
   voteRematch(player) {
     if (this.phase !== 'results') throw new GameError('La partie n\'est pas terminée');
     if (this.players.some((p) => p.left)) throw new GameError('Votre adversaire a quitté la partie');
@@ -502,6 +524,7 @@ export class Room {
   sendFullState(player) {
     this.sendTo(player, { type: 'state', state: this.stateFor(player) });
     for (const ownerId of Object.keys(this.images)) this.sendImage(player, ownerId);
+    this.sendTo(player, { type: 'chat_history', messages: this.chat });
   }
 
   broadcast() {

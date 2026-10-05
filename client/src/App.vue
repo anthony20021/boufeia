@@ -6,6 +6,7 @@ import LobbyScreen from './components/LobbyScreen.vue';
 import AuctionScreen from './components/AuctionScreen.vue';
 import MiniGameScreen from './components/MiniGameScreen.vue';
 import ResultsScreen from './components/ResultsScreen.vue';
+import ChatPanel from './components/ChatPanel.vue';
 
 const { state, leave } = useGame();
 const game = computed(() => state.game);
@@ -46,6 +47,8 @@ const connectionLabel = computed(() => ({
       </section>
       <AuctionScreen v-else />
     </main>
+
+    <ChatPanel v-if="game" />
 
     <transition name="toast">
       <div v-if="state.error" class="toast" role="alert">{{ state.error }}</div>

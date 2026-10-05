@@ -9,6 +9,7 @@ const state = reactive({
   connection: 'connecting', // 'connecting' | 'open' | 'closed'
   game: null,
   images: {},
+  chat: [],
   deadlineAt: null,
   timerTotal: 0,
   error: ''
@@ -48,11 +49,13 @@ function resetToHome() {
   storage.set(sessionStorage, SESSION_KEY, null);
   state.game = null;
   state.images = {};
+  state.chat = [];
   state.deadlineAt = null;
   state.timerTotal = 0;
 }
 
 function applyState(game) {
+  if (!state.game || state.game.code !== game.code) state.chat = [];
   if (!state.game || state.game.code !== game.code || state.game.gameSeq !== game.gameSeq) {
     state.images = {};
   }
@@ -72,6 +75,12 @@ function handleMessage(msg) {
       break;
     case 'image':
       if (state.game && msg.gameSeq === state.game.gameSeq) state.images[msg.playerId] = msg.image;
+      break;
+    case 'chat':
+      if (!state.chat.some((m) => m.id === msg.message.id)) state.chat.push(msg.message);
+      break;
+    case 'chat_history':
+      state.chat = msg.messages;
       break;
     case 'error':
       showError(msg.message);
@@ -145,6 +154,7 @@ export function useGame() {
     pass: () => send({ type: 'pass' }),
     chop: () => send({ type: 'chop' }),
     rematch: () => send({ type: 'rematch' }),
+    sendChat: (text) => send({ type: 'chat', text }),
     leave() {
       if (!send({ type: 'leave' })) resetToHome();
     }
