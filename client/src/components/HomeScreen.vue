@@ -68,7 +68,7 @@ function join() {
     <div class="card rules">
       <h2>Comment on joue ?</h2>
       <ol>
-        <li>Les deux chefs partent avec le même budget, tiré au sort entre <strong>{{ rules.budgetMin }} et {{ rules.budgetMax }} €</strong>, et un plat à composer est imposé (burger, french tacos, sandwich, salade, pizza, pâtes, tasty crousty ou tarte).</li>
+        <li>Les deux chefs partent avec le même budget, tiré au sort entre <strong>{{ rules.budgetMin }} et {{ rules.budgetMax }} €</strong>, et un plat à composer est imposé (burger, pizza, pâtes, french tacos, tasty crousty, tarte, sandwich, salade, kebab, poke bowl, hot-dog ou croque-monsieur).</li>
         <li>À chaque round, un aliment est mis aux enchères : « Je le prends pour 1 € ! — Non, moi 2 € ! ». Le plus offrant l'ajoute à son plat.</li>
         <li>Pas de chrono : on surenchérit tant qu'on veut, et l'enchère se termine quand un joueur « laisse tomber ». Chaque aliment doit être pris : si personne n'a misé et qu'on passe, l'adversaire doit le prendre pour 1 € (0 € s'il n'a plus d'argent).</li>
         <li>Au round {{ rules.minigameRound }}, mini-jeu surprise : le gagnant empoche <strong>{{ rules.bonusMin }} à {{ rules.bonusMax }} €</strong> de plus.</li>

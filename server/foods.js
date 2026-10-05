@@ -582,6 +582,284 @@ export const THEMES = [
         ing('Pignons de pin', '🌰', 'toasted pine nuts')
       ]
     }
+  },
+  {
+    id: 'kebab',
+    name: 'Kebab',
+    emoji: '🥙',
+    possessive: 'son kebab',
+    base: 'pain kebab',
+    imageLead: 'a stuffed kebab sandwich in warm flatbread',
+    ingredients: {
+      base: [
+        ing('Pain kebab', '🥙', 'in a warm kebab bread'),
+        ing('Galette', '🫓', 'in a folded flatbread galette'),
+        ing('Pain pita', '🫓', 'in a pita pocket'),
+        ing('Pain turc', '🥖', 'in a Turkish bread')
+      ],
+      viande: [
+        ing('Viande kebab', '🥙', 'carved kebab meat'),
+        ing('Poulet kebab', '🍗', 'sliced rotisserie chicken'),
+        ing('Agneau', '🍖', 'tender sliced lamb'),
+        ing('Steak haché', '🥩', 'a grilled beef patty'),
+        ing('Merguez', '🌭', 'grilled merguez sausage'),
+        ing('Brochette de poulet', '🍢', 'chicken skewer pieces'),
+        ing('Köfte', '🧆', 'grilled köfte meatballs'),
+        ing('Falafels', '🧆', 'crispy falafel')
+      ],
+      fromage: [
+        ing('Feta', '🧀', 'crumbled feta'),
+        ing('Mozzarella', '🧀', 'melted mozzarella'),
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Fromage fondu', '🧀', 'oozing melted cheese')
+      ],
+      sauce: [
+        ing('Sauce blanche', '🥛', 'white garlic yogurt sauce'),
+        ing('Sauce algérienne', '🌶️', 'spicy Algerian sauce'),
+        ing('Sauce samouraï', '🌶️', 'spicy samurai sauce'),
+        ing('Harissa', '🌶️', 'harissa'),
+        ing('Ketchup', '🍅', 'ketchup'),
+        ing('Mayonnaise', '🥚', 'mayonnaise'),
+        ing('Sauce yaourt-menthe', '🌿', 'mint yogurt sauce'),
+        ing('Houmous', '🫘', 'hummus')
+      ],
+      legume: [
+        ing('Salade', '🥬', 'shredded lettuce'),
+        ing('Tomate', '🍅', 'tomato slices'),
+        ing('Oignon', '🧅', 'sliced onion'),
+        ing('Chou rouge', '🥬', 'shredded red cabbage'),
+        ing('Concombre', '🥒', 'cucumber slices'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Poivrons', '🫑', 'grilled bell peppers'),
+        ing('Carottes', '🥕', 'grated carrots'),
+        ing('Oignons marinés', '🧅', 'pickled red onions'),
+        ing('Piments', '🌶️', 'pickled chili peppers')
+      ],
+      feculent: [
+        ing('Frites', '🍟', 'french fries stuffed inside'),
+        ing('Riz', '🍚', 'seasoned rice'),
+        ing('Boulgour', '🌾', 'bulgur')
+      ],
+      autre: [
+        ing('Œuf', '🍳', 'a fried egg'),
+        ing('Olives', '🫒', 'olives'),
+        ing('Persil', '🌿', 'fresh parsley')
+      ]
+    }
+  },
+  {
+    id: 'poke',
+    name: 'Poke bowl',
+    emoji: '🍱',
+    possessive: 'son poke bowl',
+    base: 'un bol vide',
+    imageLead: 'a colorful poke bowl with neatly arranged toppings',
+    ingredients: {
+      base: [
+        ing('Riz vinaigré', '🍚', 'on seasoned sushi rice'),
+        ing('Riz complet', '🍚', 'on brown rice'),
+        ing('Quinoa', '🌾', 'on quinoa'),
+        ing('Nouilles soba', '🍜', 'on cold soba noodles')
+      ],
+      viande: [
+        ing('Poulet teriyaki', '🍗', 'teriyaki chicken'),
+        ing('Bœuf mariné', '🥩', 'marinated sliced beef'),
+        ing('Porc effiloché', '🐖', 'pulled pork'),
+        ing('Canard laqué', '🦆', 'glazed duck slices'),
+        ing('Tofu grillé', '🌱', 'grilled tofu cubes')
+      ],
+      poisson: [
+        ing('Saumon cru', '🍣', 'raw salmon cubes'),
+        ing('Thon cru', '🐟', 'raw tuna cubes'),
+        ing('Crevettes', '🦐', 'cooked shrimp'),
+        ing('Crabe', '🦀', 'crab meat'),
+        ing('Saumon fumé', '🍣', 'smoked salmon'),
+        ing('Surimi', '🍥', 'surimi sticks')
+      ],
+      fromage: [
+        ing('Cream cheese', '🧀', 'cream cheese'),
+        ing('Feta', '🧀', 'crumbled feta')
+      ],
+      sauce: [
+        ing('Sauce soja', '🥢', 'soy sauce'),
+        ing('Sauce teriyaki', '🍯', 'teriyaki glaze'),
+        ing('Mayo épicée', '🌶️', 'spicy mayo drizzle'),
+        ing('Sriracha', '🌶️', 'sriracha'),
+        ing('Sauce sésame', '🌾', 'creamy sesame dressing'),
+        ing('Wasabi', '🟢', 'a dab of wasabi'),
+        ing('Ponzu', '🍋', 'citrus ponzu sauce')
+      ],
+      legume: [
+        ing('Avocat', '🥑', 'sliced avocado'),
+        ing('Concombre', '🥒', 'cucumber slices'),
+        ing('Edamame', '🫛', 'edamame beans'),
+        ing('Carottes', '🥕', 'julienned carrots'),
+        ing('Radis', '🌸', 'thin radish slices'),
+        ing('Chou rouge', '🥬', 'shredded red cabbage'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Oignons nouveaux', '🌱', 'sliced spring onions'),
+        ing('Algues wakame', '🌿', 'wakame seaweed salad'),
+        ing('Champignons shiitake', '🍄', 'shiitake mushrooms')
+      ],
+      fruit: [
+        ing('Mangue', '🥭', 'mango cubes'),
+        ing('Ananas', '🍍', 'pineapple chunks'),
+        ing('Grenade', '🍎', 'pomegranate seeds')
+      ],
+      autre: [
+        ing('Graines de sésame', '🌾', 'sesame seeds'),
+        ing('Œuf mariné', '🥚', 'a marinated soft-boiled egg'),
+        ing('Oignons frits', '🧅', 'crispy fried onions'),
+        ing('Noix de cajou', '🥜', 'cashews'),
+        ing('Gingembre mariné', '🌸', 'pickled ginger')
+      ]
+    }
+  },
+  {
+    id: 'hotdog',
+    name: 'Hot-dog',
+    emoji: '🌭',
+    possessive: 'son hot-dog',
+    base: 'pain à hot-dog',
+    imageLead: 'a loaded hot dog in a soft bun',
+    ingredients: {
+      base: [
+        ing('Pain à hot-dog', '🌭', 'in a soft hot dog bun'),
+        ing('Pain brioché', '🥐', 'in a toasted brioche bun'),
+        ing('Baguette', '🥖', 'in a crusty baguette')
+      ],
+      viande: [
+        ing('Saucisse de Francfort', '🌭', 'a Frankfurter sausage'),
+        ing('Saucisse de Strasbourg', '🌭', 'a Strasbourg sausage'),
+        ing('Merguez', '🌭', 'a grilled merguez'),
+        ing('Chipolata', '🌭', 'a grilled chipolata'),
+        ing('Bacon', '🥓', 'crispy bacon'),
+        ing('Saucisse fumée', '🌭', 'a smoked sausage'),
+        ing('Poulet pané', '🍗', 'crispy breaded chicken'),
+        ing('Porc effiloché', '🐖', 'pulled pork'),
+        ing('Chili con carne', '🌶️', 'beef chili con carne')
+      ],
+      poisson: [
+        ing('Saumon fumé', '🍣', 'smoked salmon')
+      ],
+      fromage: [
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Raclette', '🫕', 'melted raclette cheese'),
+        ing('Emmental', '🧀', 'melted emmental'),
+        ing('Mozzarella', '🧀', 'mozzarella'),
+        ing('Bleu', '🧀', 'blue cheese')
+      ],
+      sauce: [
+        ing('Ketchup', '🍅', 'a zigzag of ketchup'),
+        ing('Moutarde', '🟡', 'a zigzag of mustard'),
+        ing('Mayonnaise', '🥚', 'mayonnaise'),
+        ing('Sauce BBQ', '🔥', 'barbecue sauce'),
+        ing('Sauce fromagère', '🧀', 'cheese sauce'),
+        ing('Sauce piquante', '🌶️', 'hot sauce'),
+        ing('Relish', '🥒', 'sweet pickle relish'),
+        ing('Sauce Biggy', '🥫', 'creamy burger sauce'),
+        ing('Sauce algérienne', '🌶️', 'spicy Algerian sauce')
+      ],
+      legume: [
+        ing('Oignons frits', '🧅', 'crispy fried onions'),
+        ing('Oignons crus', '🧅', 'diced raw onions'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Choucroute', '🥬', 'sauerkraut'),
+        ing('Salade', '🥬', 'lettuce'),
+        ing('Tomate', '🍅', 'diced tomato'),
+        ing('Jalapeños', '🌶️', 'jalapeño slices'),
+        ing('Poivrons', '🫑', 'grilled peppers'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Oignon caramélisé', '🧅', 'caramelized onions')
+      ],
+      feculent: [
+        ing('Chips', '🥔', 'crushed potato chips'),
+        ing('Frites', '🍟', 'french fries on the side'),
+        ing('Rösti', '🥔', 'a hash brown')
+      ],
+      fruit: [
+        ing('Ananas', '🍍', 'pineapple chunks')
+      ],
+      autre: [
+        ing('Œuf', '🍳', 'a fried egg'),
+        ing('Miel', '🍯', 'a honey drizzle')
+      ]
+    }
+  },
+  {
+    id: 'croque',
+    name: 'Croque-monsieur',
+    emoji: '🥪',
+    possessive: 'son croque-monsieur',
+    base: 'pain de mie',
+    imageLead: 'a golden grilled croque-monsieur with melted cheese on top',
+    ingredients: {
+      base: [
+        ing('Pain de mie', '🍞', 'made with sliced white bread'),
+        ing('Pain de campagne', '🍞', 'made with rustic country bread'),
+        ing('Pain complet', '🍞', 'made with whole-grain bread'),
+        ing('Pain brioché', '🥐', 'made with brioche bread')
+      ],
+      viande: [
+        ing('Jambon blanc', '🍖', 'sliced ham'),
+        ing('Jambon fumé', '🍖', 'smoked ham'),
+        ing('Poulet', '🍗', 'sliced chicken'),
+        ing('Bacon', '🥓', 'crispy bacon'),
+        ing('Dinde', '🦃', 'sliced turkey'),
+        ing('Pastrami', '🥩', 'pastrami slices'),
+        ing('Chorizo', '🌶️', 'chorizo slices'),
+        ing('Saucisson', '🍖', 'dry sausage slices')
+      ],
+      poisson: [
+        ing('Saumon fumé', '🍣', 'smoked salmon'),
+        ing('Thon', '🐟', 'tuna')
+      ],
+      fromage: [
+        ing('Emmental', '🧀', 'melted emmental'),
+        ing('Gruyère', '🧀', 'melted gruyère'),
+        ing('Comté', '🧀', 'melted comté'),
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Raclette', '🫕', 'melted raclette cheese'),
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Mozzarella', '🧀', 'stretchy mozzarella'),
+        ing('Reblochon', '🫕', 'melted reblochon'),
+        ing('Brie', '🧀', 'melted brie')
+      ],
+      sauce: [
+        ing('Béchamel', '🥛', 'creamy béchamel'),
+        ing('Crème fraîche', '🥛', 'crème fraîche'),
+        ing('Moutarde', '🟡', 'mustard'),
+        ing('Pesto', '🌿', 'basil pesto'),
+        ing('Sauce tomate', '🍅', 'tomato sauce'),
+        ing('Sauce fromagère', '🧀', 'cheese sauce')
+      ],
+      legume: [
+        ing('Tomate', '🍅', 'tomato slices'),
+        ing('Champignons', '🍄', 'sautéed mushrooms'),
+        ing('Oignons', '🧅', 'caramelized onions'),
+        ing('Épinards', '🥬', 'wilted spinach'),
+        ing('Poireaux', '🥬', 'sautéed leeks'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Poivrons', '🫑', 'roasted peppers'),
+        ing('Roquette', '🌿', 'fresh arugula')
+      ],
+      feculent: [
+        ing('Pommes de terre', '🥔', 'thin potato slices'),
+        ing('Chips', '🥔', 'potato chips on the side')
+      ],
+      fruit: [
+        ing('Poire', '🍐', 'pear slices'),
+        ing('Figue', '🟣', 'fig slices'),
+        ing('Pomme', '🍎', 'apple slices')
+      ],
+      autre: [
+        ing('Œuf au plat', '🍳', 'a fried egg on top'),
+        ing('Miel', '🍯', 'a honey drizzle'),
+        ing('Noix', '🌰', 'walnuts'),
+        ing('Herbes de Provence', '🌿', 'herbes de Provence')
+      ]
+    }
   }
 ];
 
