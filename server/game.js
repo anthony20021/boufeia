@@ -169,7 +169,7 @@ export class Room {
     this.clearTimers();
     this.gameSeq++;
     this.theme = pickTheme();
-    this.items = buildRoundItems(config.totalRounds);
+    this.items = buildRoundItems(this.theme, config.totalRounds);
     this.round = 0;
     this.auction = null;
     this.lastResult = null;

@@ -73,7 +73,7 @@ const buildJudgeMessages = (theme, plates) => [
       'Tu es « Chef Gustave », juge d\'un concours de cuisine télévisé, exigeant mais plein d\'humour.',
       `Deux candidats, A et B, ont chacun composé un plat de type « ${theme.name} » uniquement avec les ingrédients remportés aux enchères, en plus de la base fournie (${theme.base}).`,
       'Évalue chaque plat sur le goût probable, l\'harmonie des saveurs, l\'équilibre, la générosité et l\'originalité.',
-      'Un plat avec très peu d\'ingrédients est décevant. Une association absurde (par exemple chocolat et anchois) est pénalisée, sauf si elle est vraiment audacieuse et cohérente.',
+      'Un plat avec très peu d\'ingrédients est décevant. Une association absurde (par exemple confiture de figues et poisson pané) est pénalisée, sauf si elle est vraiment audacieuse et cohérente.',
       'Désigne les candidats uniquement par « candidat A » et « candidat B ».',
       'Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, exactement dans ce format :',
       '{"A":{"nom":"nom créatif du plat","note":12,"commentaire":"deux phrases maximum"},"B":{"nom":"nom créatif du plat","note":15,"commentaire":"deux phrases maximum"},"gagnant":"B","verdict":"une phrase qui annonce le gagnant"}',
@@ -138,17 +138,15 @@ const parseVerdict = (content, theme, plates) => {
 const fallbackVerdict = (theme, plates) => {
   const dishes = {};
   for (const plate of plates) {
-    const regular = plate.items.filter((i) => i.category !== 'surprise');
-    const families = new Set(regular.map((i) => i.category)).size;
-    const surprises = plate.items.length - regular.length;
+    const families = new Set(plate.items.map((i) => i.category)).size;
     const score = plate.items.length
-      ? clamp(4 + families * 2 + Math.min(regular.length, 6) - surprises * 2, 1, 20)
+      ? clamp(4 + families * 2 + Math.min(plate.items.length, 6), 1, 20)
       : 1;
     dishes[plate.label] = {
       name: `${theme.name} du candidat ${plate.label}`,
       score,
       comment: plate.items.length
-        ? `${plate.items.length} ingrédient(s), ${families} famille(s) d'aliments${surprises ? `, ${surprises} ingrédient(s) surprise` : ''}.`
+        ? `${plate.items.length} ingrédient(s), ${families} famille(s) d'aliments.`
         : 'Une assiette vide… difficile de juger.'
     };
   }

@@ -42,7 +42,6 @@ const nextLabel = computed(() => {
   return 'Prochain aliment dans';
 });
 
-const dishName = computed(() => game.value.theme.name.toLowerCase());
 const logEntries = computed(() => [...game.value.log].reverse());
 </script>
 
@@ -75,7 +74,7 @@ const logEntries = computed(() => [...game.value.log].reverse());
         <p class="stage-kicker">{{ auction.item.categoryLabel }}</p>
         <div :key="auction.item.id" class="stage-emoji pop">{{ auction.item.emoji }}</div>
         <h2 class="stage-title">{{ auction.item.name }}</h2>
-        <p class="stage-sub">Qui le veut dans son {{ dishName }} ?</p>
+        <p class="stage-sub">Qui le veut dans {{ game.theme.possessive }} ?</p>
 
         <div :key="auction.bid" class="current-bid" :class="{ mine: iLead, theirs: opponentLeads }">
           <template v-if="leader">

@@ -1,105 +1,381 @@
 import { randomInt } from 'crypto';
 
-// Plat à composer (tiré au sort à chaque partie). "imageLead" sert au prompt d'image (en anglais).
-export const THEMES = [
-  { id: 'burger', name: 'Burger', emoji: '🍔', base: 'pain brioché', imageLead: 'a gourmet burger in a toasted brioche bun' },
-  { id: 'pizza', name: 'Pizza', emoji: '🍕', base: 'pâte à pizza et sauce tomate', imageLead: 'a Neapolitan pizza on a tomato sauce base' },
-  { id: 'sandwich', name: 'Sandwich', emoji: '🥖', base: 'baguette croustillante', imageLead: 'a French baguette sandwich' },
-  { id: 'tacos', name: 'Tacos', emoji: '🌮', base: 'tortillas de maïs', imageLead: 'three tacos in soft corn tortillas' },
-  { id: 'bowl', name: 'Poke bowl', emoji: '🥗', base: 'riz vinaigré', imageLead: 'a poke bowl with seasoned sushi rice' },
-  { id: 'hotdog', name: 'Hot-dog', emoji: '🌭', base: 'pain à hot-dog', imageLead: 'a loaded hot dog in a soft bun' }
-];
+// Un plat est tiré au sort à chaque partie, avec son propre catalogue d'ingrédients.
+// "base" : ce que chaque joueur a d'office. "imageLead" : début du prompt d'image (en anglais).
+// "possessive" : pour les phrases de l'interface ("dans sa pizza").
 
 export const CATEGORY_LABELS = {
-  proteine: 'Protéine',
-  legume: 'Légume',
+  base: 'Base',
+  viande: 'Viande',
+  poisson: 'Poisson',
   fromage: 'Fromage',
   sauce: 'Sauce',
-  extra: 'Extra',
-  surprise: 'Surprise !'
+  legume: 'Légume',
+  feculent: 'Féculent',
+  fruit: 'Fruit',
+  autre: 'Autre'
 };
 
-const item = (id, name, emoji, en) => ({ id, name, emoji, en });
+const slug = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-export const INGREDIENTS = {
-  proteine: [
-    item('steak', 'Steak haché', '🥩', 'a juicy beef patty'),
-    item('poulet', 'Poulet croustillant', '🍗', 'crispy fried chicken'),
-    item('bacon', 'Bacon grillé', '🥓', 'crispy bacon strips'),
-    item('saumon', 'Saumon fumé', '🐟', 'smoked salmon'),
-    item('crevettes', 'Crevettes', '🦐', 'grilled shrimp'),
-    item('oeuf', 'Œuf au plat', '🍳', 'a fried egg'),
-    item('falafel', 'Falafels', '🧆', 'falafel'),
-    item('saucisse', 'Saucisse fumée', '🌭', 'smoked sausage'),
-    item('jambon', 'Jambon cru', '🍖', 'cured ham'),
-    item('thon', 'Thon mi-cuit', '🍣', 'seared tuna'),
-    item('vegetal', 'Steak végétal', '🌱', 'a plant-based patty')
-  ],
-  legume: [
-    item('salade', 'Salade', '🥬', 'crisp lettuce'),
-    item('tomate', 'Tomate', '🍅', 'fresh tomato slices'),
-    item('oignon', 'Oignons rouges', '🧅', 'red onion rings'),
-    item('cornichon', 'Cornichons', '🥒', 'pickles'),
-    item('avocat', 'Avocat', '🥑', 'sliced avocado'),
-    item('champignon', 'Champignons poêlés', '🍄', 'sautéed mushrooms'),
-    item('poivron', 'Poivrons grillés', '🫑', 'grilled bell peppers'),
-    item('mais', 'Maïs', '🌽', 'sweet corn'),
-    item('roquette', 'Roquette', '🌿', 'arugula'),
-    item('jalapeno', 'Jalapeños', '🌶️', 'jalapeño slices'),
-    item('concombre', 'Concombre', '🥒', 'cucumber slices'),
-    item('olive', 'Olives noires', '🫒', 'black olives'),
-    item('chou', 'Chou rouge', '🥬', 'shredded red cabbage')
-  ],
-  fromage: [
-    item('cheddar', 'Cheddar fondu', '🧀', 'melted cheddar'),
-    item('mozzarella', 'Mozzarella', '🧀', 'fresh mozzarella'),
-    item('chevre', 'Chèvre', '🐐', 'goat cheese'),
-    item('raclette', 'Raclette', '🫕', 'melted raclette cheese'),
-    item('bleu', 'Bleu d\'Auvergne', '🧀', 'blue cheese'),
-    item('parmesan', 'Parmesan', '🧀', 'shaved parmesan'),
-    item('feta', 'Feta', '🧀', 'crumbled feta')
-  ],
-  sauce: [
-    item('ketchup', 'Ketchup', '🍅', 'ketchup'),
-    item('mayo', 'Mayonnaise', '🥚', 'mayonnaise'),
-    item('moutarde', 'Moutarde', '🟡', 'mustard'),
-    item('bbq', 'Sauce barbecue', '🔥', 'smoky barbecue sauce'),
-    item('samourai', 'Sauce samouraï', '🌶️', 'spicy samurai sauce'),
-    item('pesto', 'Pesto', '🌿', 'basil pesto'),
-    item('guacamole', 'Guacamole', '🥑', 'guacamole'),
-    item('blanche', 'Sauce blanche à l\'ail', '🥛', 'garlic yogurt sauce'),
-    item('sriracha', 'Sriracha', '🌶️', 'sriracha sauce'),
-    item('miel', 'Miel', '🍯', 'a honey drizzle')
-  ],
-  extra: [
-    item('frites', 'Frites', '🍟', 'french fries'),
-    item('oignonsfrits', 'Oignons frits', '🧅', 'crispy fried onions'),
-    item('chips', 'Chips', '🥔', 'potato chips'),
-    item('rosti', 'Galette de pommes de terre', '🥔', 'a hash brown'),
-    item('ananas', 'Ananas grillé', '🍍', 'grilled pineapple'),
-    item('truffe', 'Truffe noire', '✨', 'black truffle shavings'),
-    item('foiegras', 'Foie gras', '🦆', 'seared foie gras'),
-    item('sesame', 'Graines de sésame', '🌾', 'sesame seeds'),
-    item('cacahuetes', 'Cacahuètes', '🥜', 'crushed peanuts')
-  ],
-  surprise: [
-    item('chocolat', 'Chocolat fondu', '🍫', 'melted chocolate'),
-    item('fraise', 'Fraises', '🍓', 'strawberries'),
-    item('bonbons', 'Bonbons', '🍬', 'gummy candies'),
-    item('tartiner', 'Pâte à tartiner', '🌰', 'chocolate hazelnut spread'),
-    item('chantilly', 'Chantilly', '🍦', 'whipped cream'),
-    item('banane', 'Banane', '🍌', 'banana slices'),
-    item('anchois', 'Anchois', '🐟', 'anchovies'),
-    item('wasabi', 'Wasabi', '🟢', 'wasabi'),
-    item('popcorn', 'Pop-corn', '🍿', 'popcorn'),
-    item('cereales', 'Céréales du petit-déj', '🥣', 'breakfast cereal'),
-    item('marshmallow', 'Marshmallows', '☁️', 'marshmallows'),
-    item('glace', 'Glace vanille', '🍨', 'vanilla ice cream')
-  ]
-};
+// [nom affiché, emoji, description anglaise pour la photo]
+const ing = (name, emoji, en) => ({ id: slug(name), name, emoji, en });
 
-// Répartition des 10 rounds : de quoi faire un vrai plat, plus un piège
-const ROUND_TEMPLATE = ['proteine', 'proteine', 'legume', 'legume', 'legume', 'fromage', 'sauce', 'sauce', 'extra', 'surprise'];
+export const THEMES = [
+  {
+    id: 'burger',
+    name: 'Burger',
+    emoji: '🍔',
+    possessive: 'son burger',
+    base: 'pain brioché',
+    imageLead: 'a gourmet burger in a toasted brioche bun',
+    ingredients: {
+      viande: [
+        ing('Steak haché', '🥩', 'a juicy beef patty'),
+        ing('Poulet pané', '🍗', 'a crispy breaded chicken fillet'),
+        ing('Bacon', '🥓', 'crispy bacon strips'),
+        ing('Double smash', '🥩', 'a double smashed beef patty'),
+        ing('Effiloché de porc', '🐖', 'pulled pork'),
+        ing('Steak végétal', '🌱', 'a plant-based patty')
+      ],
+      poisson: [
+        ing('Poisson pané', '🐟', 'a crispy breaded fish fillet'),
+        ing('Crevettes panées', '🍤', 'crispy breaded shrimp')
+      ],
+      fromage: [
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Fromage de chèvre', '🐐', 'goat cheese'),
+        ing('Camembert', '🧀', 'melted camembert'),
+        ing('Raclette', '🫕', 'melted raclette cheese'),
+        ing('Bleu', '🧀', 'blue cheese')
+      ],
+      sauce: [
+        ing('Sauce Biggy', '🥫', 'creamy burger sauce'),
+        ing('Sauce BBQ', '🔥', 'smoky barbecue sauce'),
+        ing('Sauce fromagère', '🧀', 'cheese sauce'),
+        ing('Sauce algérienne', '🌶️', 'spicy Algerian sauce'),
+        ing('Sauce mangue fruit de la passion', '🥭', 'mango passion fruit sauce'),
+        ing('Sauce samouraï', '🌶️', 'spicy samurai sauce'),
+        ing('Mayonnaise', '🥚', 'mayonnaise'),
+        ing('Ketchup', '🍅', 'ketchup')
+      ],
+      legume: [
+        ing('Tomate', '🍅', 'fresh tomato slices'),
+        ing('Salade', '🥬', 'crisp lettuce'),
+        ing('Oignon caramélisé', '🧅', 'caramelized onions'),
+        ing('Oignons frits', '🧅', 'crispy fried onions'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Poivron', '🫑', 'grilled bell pepper'),
+        ing('Avocat', '🥑', 'sliced avocado'),
+        ing('Champignons poêlés', '🍄', 'sautéed mushrooms'),
+        ing('Jalapeños', '🌶️', 'jalapeño slices'),
+        ing('Roquette', '🌿', 'arugula')
+      ],
+      feculent: [
+        ing('Rösti', '🥔', 'a golden hash brown'),
+        ing('Frites', '🍟', 'a few french fries'),
+        ing('Potatoes', '🥔', 'potato wedges')
+      ],
+      fruit: [
+        ing('Ananas grillé', '🍍', 'grilled pineapple'),
+        ing('Confiture de figues', '🍯', 'fig jam')
+      ],
+      autre: [
+        ing('Œuf au plat', '🍳', 'a fried egg'),
+        ing('Miel', '🍯', 'a honey drizzle')
+      ]
+    }
+  },
+  {
+    id: 'tacos',
+    name: 'Tacos',
+    emoji: '🌮',
+    possessive: 'ses tacos',
+    base: 'galette de tortilla',
+    imageLead: 'a French-style tacos, a grilled tortilla wrap',
+    ingredients: {
+      viande: [
+        ing('Viande hachée', '🥩', 'seasoned ground beef'),
+        ing('Tenders', '🍗', 'crispy chicken tenders'),
+        ing('Cordon bleu', '🍗', 'a breaded cordon bleu'),
+        ing('Nuggets', '🍗', 'chicken nuggets'),
+        ing('Viande kebab', '🥙', 'sliced kebab meat'),
+        ing('Merguez', '🌭', 'grilled merguez sausage'),
+        ing('Poulet mariné', '🍗', 'marinated grilled chicken')
+      ],
+      poisson: [
+        ing('Crevettes', '🦐', 'grilled shrimp'),
+        ing('Poisson pané', '🐟', 'crispy breaded fish')
+      ],
+      fromage: [
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Fromage à raclette', '🫕', 'melted raclette cheese'),
+        ing('Mozzarella', '🧀', 'stretchy melted mozzarella')
+      ],
+      sauce: [
+        ing('Sauce fromagère', '🧀', 'cheese sauce'),
+        ing('Sauce BBQ', '🔥', 'barbecue sauce'),
+        ing('Sauce burger', '🍔', 'burger sauce'),
+        ing('Sauce curry', '🍛', 'curry sauce'),
+        ing('Sauce blanche', '🥛', 'white garlic sauce'),
+        ing('Sauce algérienne', '🌶️', 'spicy Algerian sauce'),
+        ing('Harissa', '🌶️', 'harissa'),
+        ing('Guacamole', '🥑', 'guacamole')
+      ],
+      legume: [
+        ing('Tomate', '🍅', 'diced tomato'),
+        ing('Salade', '🥬', 'shredded lettuce'),
+        ing('Oignon', '🧅', 'sliced onion'),
+        ing('Poivron', '🫑', 'bell pepper strips'),
+        ing('Carottes', '🥕', 'grated carrots'),
+        ing('Petits pois', '🫛', 'green peas'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Jalapeños', '🌶️', 'jalapeño slices'),
+        ing('Haricots rouges', '🫘', 'red beans')
+      ],
+      feculent: [
+        ing('Frites', '🍟', 'french fries stuffed inside'),
+        ing('Rösti', '🥔', 'a hash brown'),
+        ing('Riz', '🍚', 'seasoned rice')
+      ],
+      autre: [
+        ing('Œuf', '🍳', 'a fried egg'),
+        ing('Coriandre', '🌿', 'fresh cilantro')
+      ]
+    }
+  },
+  {
+    id: 'sandwich',
+    name: 'Sandwich',
+    emoji: '🥖',
+    possessive: 'son sandwich',
+    base: 'pain basique',
+    imageLead: 'a big deli sandwich',
+    ingredients: {
+      base: [
+        ing('Pain de mie', '🍞', 'on sliced sandwich bread'),
+        ing('Baguette blanche', '🥖', 'on a crusty white baguette'),
+        ing('Pain complet', '🍞', 'on whole-grain bread'),
+        ing('Pain ciabatta', '🥪', 'on a ciabatta roll')
+      ],
+      viande: [
+        ing('Jambon', '🍖', 'sliced ham'),
+        ing('Jambon de Bayonne', '🍖', 'thin slices of Bayonne ham'),
+        ing('Blanc de poulet', '🍗', 'sliced chicken breast'),
+        ing('Blanc de dinde', '🦃', 'sliced turkey breast'),
+        ing('Steak haché', '🥩', 'a beef patty'),
+        ing('Ventrèche', '🥓', 'grilled pork belly slices'),
+        ing('Chipolata', '🌭', 'a grilled chipolata sausage'),
+        ing('Saucisson', '🍖', 'sliced dry sausage'),
+        ing('Bacon', '🥓', 'crispy bacon'),
+        ing('Pastrami', '🥩', 'thick slices of pastrami')
+      ],
+      poisson: [
+        ing('Thon', '🐟', 'flaked tuna'),
+        ing('Poisson pané', '🐟', 'a crispy breaded fish fillet'),
+        ing('Saumon fumé', '🍣', 'smoked salmon')
+      ],
+      fromage: [
+        ing('Burrata', '🧀', 'creamy burrata'),
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Cheddar', '🧀', 'cheddar slices'),
+        ing('Emmental', '🧀', 'emmental slices'),
+        ing('Brie', '🧀', 'brie slices')
+      ],
+      sauce: [
+        ing('Sauce Biggy', '🥫', 'creamy sauce'),
+        ing('Moutarde', '🟡', 'mustard'),
+        ing('Ketchup', '🍅', 'ketchup'),
+        ing('Mayonnaise', '🥚', 'mayonnaise'),
+        ing('Pesto vert', '🌿', 'green basil pesto'),
+        ing('Pesto rouge', '🍅', 'red sun-dried tomato pesto'),
+        ing('Houmous', '🫘', 'hummus')
+      ],
+      legume: [
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Salade', '🥬', 'crisp lettuce'),
+        ing('Tomate', '🍅', 'tomato slices'),
+        ing('Oignon', '🧅', 'thin onion rings'),
+        ing('Poivrons', '🫑', 'roasted bell peppers'),
+        ing('Champignons', '🍄', 'sliced mushrooms'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Betterave', '🟣', 'beetroot slices'),
+        ing('Chou', '🥬', 'shredded cabbage'),
+        ing('Avocat', '🥑', 'sliced avocado'),
+        ing('Concombre', '🥒', 'cucumber slices')
+      ],
+      feculent: [
+        ing('Frites', '🍟', 'french fries tucked inside'),
+        ing('Chips', '🥔', 'potato chips')
+      ],
+      fruit: [
+        ing('Pomme', '🍎', 'thin apple slices'),
+        ing('Figue', '🟣', 'fresh fig slices')
+      ],
+      autre: [
+        ing('Pâte à tartiner', '🌰', 'chocolate hazelnut spread'),
+        ing('Œuf dur', '🥚', 'sliced hard-boiled egg'),
+        ing('Beurre', '🧈', 'butter')
+      ]
+    }
+  },
+  {
+    id: 'salade',
+    name: 'Salade',
+    emoji: '🥗',
+    possessive: 'sa salade',
+    base: 'un grand bol',
+    imageLead: 'a big colorful composed salad in a bowl',
+    ingredients: {
+      viande: [
+        ing('Blanc de poulet', '🍗', 'sliced grilled chicken breast'),
+        ing('Tenders', '🍗', 'crispy chicken tenders'),
+        ing('Jambon', '🍖', 'strips of ham'),
+        ing('Lardons', '🥓', 'crispy bacon bits'),
+        ing('Magret fumé', '🦆', 'thin slices of smoked duck breast'),
+        ing('Gésiers', '🍖', 'confit gizzards')
+      ],
+      poisson: [
+        ing('Thon', '🐟', 'flaked tuna'),
+        ing('Moules', '🦪', 'cooked mussels'),
+        ing('Saumon fumé', '🍣', 'smoked salmon'),
+        ing('Crevettes', '🦐', 'shrimp')
+      ],
+      fromage: [
+        ing('Burrata', '🧀', 'creamy burrata'),
+        ing('Mozzarella', '🧀', 'mozzarella pearls'),
+        ing('Emmental', '🧀', 'emmental cubes'),
+        ing('Parmesan', '🧀', 'shaved parmesan'),
+        ing('Cheddar', '🧀', 'cheddar cubes'),
+        ing('Feta', '🧀', 'crumbled feta'),
+        ing('Chèvre chaud', '🐐', 'warm goat cheese toast')
+      ],
+      sauce: [
+        ing('Vinaigrette', '🫒', 'a light vinaigrette'),
+        ing('Balsamique', '🍇', 'balsamic glaze'),
+        ing('Ketchup', '🍅', 'a swirl of ketchup'),
+        ing('Sauce césar', '🥛', 'creamy caesar dressing'),
+        ing('Pesto', '🌿', 'basil pesto')
+      ],
+      legume: [
+        ing('Salade', '🥬', 'fresh lettuce leaves'),
+        ing('Tomate', '🍅', 'cherry tomatoes'),
+        ing('Oignon', '🧅', 'red onion slices'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Poivrons', '🫑', 'bell pepper strips'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Oignons frits', '🧅', 'crispy fried onions'),
+        ing('Aubergines', '🍆', 'grilled eggplant'),
+        ing('Chou', '🥬', 'shredded red cabbage'),
+        ing('Courgette', '🥒', 'grilled zucchini'),
+        ing('Concombre', '🥒', 'cucumber slices'),
+        ing('Avocat', '🥑', 'sliced avocado'),
+        ing('Radis', '🌸', 'radish slices'),
+        ing('Olives', '🫒', 'black olives')
+      ],
+      feculent: [
+        ing('Pâtes', '🍝', 'cold pasta'),
+        ing('Quinoa', '🌾', 'quinoa'),
+        ing('Croûtons', '🍞', 'golden croutons'),
+        ing('Pommes de terre', '🥔', 'boiled potato cubes')
+      ],
+      fruit: [
+        ing('Ananas', '🍍', 'pineapple chunks'),
+        ing('Fraises', '🍓', 'sliced strawberries'),
+        ing('Pomme', '🍎', 'apple slices'),
+        ing('Raisins', '🍇', 'grapes')
+      ],
+      autre: [
+        ing('Œuf dur', '🥚', 'a halved boiled egg'),
+        ing('Noix', '🌰', 'walnuts'),
+        ing('Graines de sésame', '🌾', 'sesame seeds')
+      ]
+    }
+  },
+  {
+    id: 'pizza',
+    name: 'Pizza',
+    emoji: '🍕',
+    possessive: 'sa pizza',
+    base: 'pâte à pizza nature',
+    imageLead: 'a rustic pizza',
+    ingredients: {
+      base: [
+        ing('Base crème', '🥛', 'on a creamy white base'),
+        ing('Base tomate', '🍅', 'on a tomato sauce base')
+      ],
+      viande: [
+        ing('Poulet', '🍗', 'grilled chicken pieces'),
+        ing('Kebab', '🥙', 'sliced kebab meat'),
+        ing('Ventrèche', '🥓', 'pork belly slices'),
+        ing('Viande hachée', '🥩', 'ground beef'),
+        ing('Lardons', '🥓', 'bacon bits'),
+        ing('Merguez', '🌭', 'merguez sausage slices'),
+        ing('Boudin', '🍖', 'black pudding slices'),
+        ing('Chorizo', '🌶️', 'chorizo slices'),
+        ing('Jambon', '🍖', 'ham slices'),
+        ing('Magret fumé', '🦆', 'smoked duck breast slices'),
+        ing('Pepperoni', '🍕', 'pepperoni slices')
+      ],
+      poisson: [
+        ing('Saumon', '🍣', 'smoked salmon'),
+        ing('Caviar', '⚫', 'a spoonful of caviar'),
+        ing('Thon', '🐟', 'tuna'),
+        ing('Anchois', '🐟', 'anchovies'),
+        ing('Crevettes', '🦐', 'shrimp')
+      ],
+      fromage: [
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Parmesan', '🧀', 'shaved parmesan'),
+        ing('Emmental', '🧀', 'melted emmental'),
+        ing('Burrata', '🧀', 'creamy burrata'),
+        ing('Bleu', '🧀', 'blue cheese'),
+        ing('Raclette', '🫕', 'melted raclette cheese'),
+        ing('Mozzarella', '🧀', 'stretchy mozzarella'),
+        ing('Gorgonzola', '🧀', 'gorgonzola')
+      ],
+      sauce: [
+        ing('Sauce pimentée', '🌶️', 'a drizzle of chili sauce'),
+        ing('Pesto', '🌿', 'basil pesto'),
+        ing('Sauce BBQ', '🔥', 'barbecue sauce'),
+        ing('Huile pimentée', '🌶️', 'chili oil')
+      ],
+      legume: [
+        ing('Oignon caramélisé', '🧅', 'caramelized onions'),
+        ing('Poivrons', '🫑', 'bell pepper strips'),
+        ing('Tomate', '🍅', 'tomato slices'),
+        ing('Carotte', '🥕', 'carrot slices'),
+        ing('Cornichon', '🥒', 'pickle slices'),
+        ing('Olives', '🫒', 'black olives'),
+        ing('Champignons', '🍄', 'sliced mushrooms'),
+        ing('Roquette', '🌿', 'fresh arugula'),
+        ing('Courgette', '🥒', 'zucchini slices'),
+        ing('Artichauts', '🌿', 'artichoke hearts')
+      ],
+      feculent: [
+        ing('Patate', '🥔', 'thin potato slices'),
+        ing('Gnocchis', '🥟', 'gnocchi')
+      ],
+      fruit: [
+        ing('Ananas', '🍍', 'pineapple chunks'),
+        ing('Framboises', '🍓', 'fresh raspberries'),
+        ing('Figues', '🟣', 'fig slices'),
+        ing('Poire', '🍐', 'pear slices')
+      ],
+      autre: [
+        ing('Miel', '🍯', 'a honey drizzle'),
+        ing('Œuf', '🍳', 'a baked egg'),
+        ing('Noix', '🌰', 'walnuts'),
+        ing('Chocolat', '🍫', 'melted chocolate')
+      ]
+    }
+  }
+];
+
+const MIN_MEAT = 2;
+const MAX_BASE = 1; // un seul pain / une seule base mise aux enchères par partie
 
 const pick = (list) => list[randomInt(list.length)];
 
@@ -113,19 +389,39 @@ const shuffle = (list) => {
 
 export const pickTheme = () => pick(THEMES);
 
-export const buildRoundItems = (rounds) => {
-  const categories = shuffle([...ROUND_TEMPLATE]);
-  while (categories.length < rounds) categories.push(pick(Object.keys(INGREDIENTS)));
+// Au moins 2 viandes, le reste tiré au hasard (catégorie d'abord, pour garder de la variété)
+export const buildRoundItems = (theme, rounds) => {
+  const remaining = Object.fromEntries(
+    Object.entries(theme.ingredients).map(([category, list]) => [category, [...list]])
+  );
+  let baseCount = 0;
+  const items = [];
 
-  const used = new Set();
-  return categories.slice(0, rounds).map((category) => {
-    const available = INGREDIENTS[category].filter((i) => !used.has(i.id));
-    const chosen = pick(available.length ? available : INGREDIENTS[category]);
-    used.add(chosen.id);
-    return { ...chosen, category, categoryLabel: CATEGORY_LABELS[category] };
-  });
+  const draw = (category) => {
+    const list = remaining[category];
+    const [chosen] = list.splice(randomInt(list.length), 1);
+    if (category === 'base') baseCount++;
+    items.push({ ...chosen, category, categoryLabel: CATEGORY_LABELS[category] });
+  };
+
+  for (let i = 0; i < Math.min(MIN_MEAT, rounds); i++) draw('viande');
+
+  while (items.length < rounds) {
+    const categories = Object.keys(remaining).filter(
+      (c) => remaining[c].length > 0 && !(c === 'base' && baseCount >= MAX_BASE)
+    );
+    if (!categories.length) break;
+    draw(pick(categories));
+  }
+  return shuffle(items);
 };
 
 // Ce qui est envoyé aux navigateurs (sans les champs internes)
 export const publicItem = ({ id, name, emoji, category, categoryLabel }) => ({ id, name, emoji, category, categoryLabel });
-export const publicTheme = (theme) => theme && { id: theme.id, name: theme.name, emoji: theme.emoji, base: theme.base };
+export const publicTheme = (theme) => theme && {
+  id: theme.id,
+  name: theme.name,
+  emoji: theme.emoji,
+  base: theme.base,
+  possessive: theme.possessive
+};

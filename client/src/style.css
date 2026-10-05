@@ -750,12 +750,15 @@ input:focus {
   font-size: 1rem;
 }
 
-.cat-proteine { background: #fde3dc; }
+.cat-viande { background: #fde3dc; }
+.cat-poisson { background: #dff0fb; }
 .cat-legume { background: #e3f4ea; }
 .cat-fromage { background: #fff1c7; }
 .cat-sauce { background: #ffe2c2; }
-.cat-extra { background: #e6eefc; }
-.cat-surprise { background: #f3e8fb; }
+.cat-feculent { background: #f5ecd7; }
+.cat-fruit { background: #fbe0ee; }
+.cat-base { background: #ece6df; }
+.cat-autre { background: #f3e8fb; }
 
 .log {
   list-style: none;
