@@ -3,7 +3,7 @@
 Jeu d'enchères culinaires à 2 joueurs, en temps réel (WebSocket), avec une interface Vue 3.
 
 1. Les deux joueurs partent avec le même budget, tiré au sort (15 à 30 €), et un plat à composer est tiré au sort (burger, tacos, sandwich, salade ou pizza).
-2. À chaque round (16 au total), un aliment est mis aux enchères, sans limite de temps : l'enchère se termine quand un joueur laisse tomber (« Passer »). Le plus offrant l'ajoute à son plat.
+2. À chaque round (16 au total), un aliment est mis aux enchères, sans limite de temps : l'enchère se termine quand un joueur laisse tomber (« Passer »). Le plus offrant l'ajoute à son plat. Chaque aliment doit être pris : si personne n'a misé et qu'un joueur passe, l'adversaire doit le prendre pour 1 € (gratuit s'il n'a plus d'argent).
 3. Au round 7, un mini-jeu (« La Découpe Express », taper le plus vite possible pendant 8 s) rapporte 5 à 10 € au gagnant.
 4. À la fin, un LLM (via `ollama_api`) juge les deux plats, puis la génération d'image (`/api/image`, ComfyUI) les photographie de façon réaliste.
 

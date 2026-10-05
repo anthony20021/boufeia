@@ -251,6 +251,20 @@ export class Room {
     if (this.phase !== 'auction' || !auction) throw new GameError('Aucune enchère en cours');
     if (auction.leaderId === player.id) throw new GameError('Vous menez l\'enchère, impossible de passer');
     if (auction.passed.has(player.id)) return;
+
+    // Chaque aliment doit être pris par un joueur : si personne n'a misé, passer le laisse à l'adversaire
+    if (auction.leaderId === null) {
+      const other = this.players.find((p) => p.id !== player.id);
+      if (!other || auction.passed.has(other.id)) {
+        throw new GameError('Vous devez prendre cet aliment (misez au moins 1 €)');
+      }
+      auction.passed.add(player.id);
+      auction.leaderId = other.id;
+      auction.bid = Math.min(1, other.budget);
+      this.addLog(`🙅 ${player.name} passe : ${other.name} doit prendre l'aliment pour ${auction.bid} €`);
+      return this.endAuction();
+    }
+
     auction.passed.add(player.id);
     this.addLog(`🙅 ${player.name} passe`);
     if (!this.checkAuctionEnd()) this.broadcast();
@@ -271,15 +285,16 @@ export class Room {
     this.clearPhaseTimer();
     const auction = this.auction;
     if (!auction) return;
-    const winner = auction.leaderId ? this.players.find((p) => p.id === auction.leaderId) : null;
-    if (winner) {
-      winner.budget -= auction.bid;
-      winner.plate.push(auction.item);
-      this.addLog(`✅ ${winner.name} remporte ${auction.item.emoji} ${auction.item.name} pour ${auction.bid} €`);
-    } else {
-      this.addLog(`🤷 Personne ne prend ${auction.item.emoji} ${auction.item.name}`);
+    if (!auction.leaderId) {
+      // Aucun joueur n'a pu miser (budgets à 0) : l'aliment est tiré au sort, gratuitement
+      auction.leaderId = this.players[randomInt(this.players.length)].id;
+      auction.bid = 0;
     }
-    this.lastResult = { item: auction.item, winnerId: winner ? winner.id : null, price: winner ? auction.bid : 0 };
+    const winner = this.players.find((p) => p.id === auction.leaderId);
+    winner.budget -= auction.bid;
+    winner.plate.push(auction.item);
+    this.addLog(`✅ ${winner.name} remporte ${auction.item.emoji} ${auction.item.name} pour ${auction.bid} €`);
+    this.lastResult = { item: auction.item, winnerId: winner.id, price: auction.bid };
     this.auction = null;
     this.phase = 'auction_result';
     this.setPhaseTimer(RESULT_PAUSE_MS, () => this.nextRound());

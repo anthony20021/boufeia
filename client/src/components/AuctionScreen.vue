@@ -16,6 +16,7 @@ const iLead = computed(() => !!auction.value && auction.value.leaderId === me.va
 const iPassed = computed(() => !!auction.value?.passed.includes(me.value.id));
 const opponentLeads = computed(() => !!auction.value && !!opponent.value && auction.value.leaderId === opponent.value.id);
 const opponentPassed = computed(() => !!auction.value && !!opponent.value && auction.value.passed.includes(opponent.value.id));
+const mustTake = computed(() => !!auction.value && !auction.value.leaderId && opponentPassed.value && !iPassed.value);
 const leader = computed(() => (auction.value?.leaderId ? playerById(auction.value.leaderId) : null));
 const resultWinner = computed(() => (result.value?.winnerId ? playerById(result.value.winnerId) : null));
 
@@ -85,6 +86,7 @@ const logEntries = computed(() => [...game.value.log].reverse());
         </div>
 
         <div class="bid-controls">
+          <p v-if="mustTake" class="status-msg success">Votre adversaire n'a plus d'argent : vous devez prendre cet aliment (misez au moins 1 €).</p>
           <p v-if="iPassed" class="status-msg">Vous avez passé sur cet aliment.</p>
           <p v-else-if="iLead" class="status-msg success">Vous menez avec {{ auction.bid }} €, à l'adversaire de suivre !</p>
           <p v-else-if="me.budget < minBid" class="status-msg">Budget insuffisant pour surenchérir.</p>
@@ -103,7 +105,9 @@ const logEntries = computed(() => [...game.value.log].reverse());
             <form class="custom-bid" @submit.prevent="submitCustom">
               <input v-model.number="customBid" type="number" inputmode="numeric" :min="minBid" :max="me.budget" step="1" aria-label="Montant" />
               <button class="btn btn-outline" type="submit">Miser</button>
-              <button class="btn btn-ghost" type="button" @click="pass">Passer</button>
+              <button v-if="!mustTake" class="btn btn-ghost" type="button" @click="pass">
+                {{ leader ? 'Passer' : 'Passer (il le prend à 1 €)' }}
+              </button>
             </form>
           </template>
           <p v-if="opponentPassed && !iPassed && opponent" class="status-msg muted">{{ opponent.name }} a passé.</p>
@@ -119,7 +123,6 @@ const logEntries = computed(() => [...game.value.log].reverse());
           {{ resultWinner.id === me.id ? 'Adjugé, pour vous !' : `Adjugé à ${resultWinner.name}` }}
           <strong>{{ result.price }} €</strong>
         </p>
-        <p v-else class="result-line">Personne n'en a voulu 🤷</p>
         <TimerBar :label="nextLabel" />
       </template>
     </div>
