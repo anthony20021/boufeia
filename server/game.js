@@ -262,13 +262,11 @@ export class Room {
     // Chaque aliment doit être pris par un joueur : si personne n'a misé, passer le laisse à l'adversaire
     if (auction.leaderId === null) {
       const other = this.players.find((p) => p.id !== player.id);
-      if (!other || auction.passed.has(other.id)) {
-        throw new GameError('Vous devez prendre cet aliment (misez au moins 1 €)');
-      }
+      if (!other) throw new GameError('Aucun adversaire');
       auction.passed.add(player.id);
       auction.leaderId = other.id;
       auction.bid = Math.min(1, other.budget);
-      this.addLog(`🙅 ${player.name} passe : ${other.name} doit prendre l'aliment pour ${auction.bid} €`);
+      this.addLog(`🙅 ${player.name} passe : ${other.name} doit prendre l'aliment pour ${auction.bid} €`); // 0 € si l'adversaire est à sec
       return this.endAuction();
     }
 

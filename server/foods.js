@@ -88,9 +88,9 @@ export const THEMES = [
   },
   {
     id: 'tacos',
-    name: 'Tacos',
+    name: 'French tacos',
     emoji: '🌮',
-    possessive: 'ses tacos',
+    possessive: 'son french tacos',
     base: 'galette de tortilla',
     imageLead: 'a French-style tacos, a grilled tortilla wrap',
     ingredients: {
@@ -369,6 +369,217 @@ export const THEMES = [
         ing('Œuf', '🍳', 'a baked egg'),
         ing('Noix', '🌰', 'walnuts'),
         ing('Chocolat', '🍫', 'melted chocolate')
+      ]
+    }
+  },
+  {
+    id: 'pates',
+    name: 'Pâtes',
+    emoji: '🍝',
+    possessive: 'ses pâtes',
+    base: 'pâtes nature',
+    imageLead: 'a generous plate of pasta',
+    ingredients: {
+      base: [
+        ing('Spaghettis', '🍝', 'spaghetti'),
+        ing('Tagliatelles', '🍝', 'fresh tagliatelle'),
+        ing('Penne', '🍝', 'penne pasta'),
+        ing('Coquillettes', '🍝', 'elbow macaroni'),
+        ing('Tortellinis', '🥟', 'stuffed tortellini'),
+        ing('Gnocchis', '🥟', 'potato gnocchi')
+      ],
+      viande: [
+        ing('Lardons', '🥓', 'crispy bacon bits'),
+        ing('Jambon', '🍖', 'strips of ham'),
+        ing('Poulet', '🍗', 'grilled chicken strips'),
+        ing('Boulettes de bœuf', '🧆', 'beef meatballs'),
+        ing('Chorizo', '🌶️', 'chorizo slices'),
+        ing('Saucisse italienne', '🌭', 'sliced Italian sausage'),
+        ing('Viande hachée', '🥩', 'a rich ground beef ragù'),
+        ing('Pancetta', '🥓', 'crispy pancetta'),
+        ing('Magret fumé', '🦆', 'smoked duck breast slices')
+      ],
+      poisson: [
+        ing('Saumon', '🍣', 'chunks of salmon'),
+        ing('Thon', '🐟', 'flaked tuna'),
+        ing('Crevettes', '🦐', 'shrimp'),
+        ing('Moules', '🦪', 'steamed mussels'),
+        ing('Anchois', '🐟', 'anchovies')
+      ],
+      fromage: [
+        ing('Parmesan', '🧀', 'grated parmesan'),
+        ing('Mozzarella', '🧀', 'melted mozzarella'),
+        ing('Emmental râpé', '🧀', 'grated emmental'),
+        ing('Chèvre', '🐐', 'goat cheese crumbles'),
+        ing('Gorgonzola', '🧀', 'creamy gorgonzola'),
+        ing('Burrata', '🧀', 'creamy burrata'),
+        ing('Mascarpone', '🥛', 'a dollop of mascarpone')
+      ],
+      sauce: [
+        ing('Sauce tomate', '🍅', 'tomato sauce'),
+        ing('Crème fraîche', '🥛', 'a creamy sauce'),
+        ing('Sauce carbonara', '🥚', 'creamy carbonara sauce'),
+        ing('Pesto vert', '🌿', 'green basil pesto'),
+        ing('Pesto rouge', '🍅', 'red sun-dried tomato pesto'),
+        ing('Sauce arrabbiata', '🌶️', 'spicy arrabbiata sauce'),
+        ing('Sauce quatre fromages', '🧀', 'rich four-cheese sauce'),
+        ing('Huile d\'olive pimentée', '🫒', 'chili olive oil')
+      ],
+      legume: [
+        ing('Champignons', '🍄', 'sautéed mushrooms'),
+        ing('Oignon', '🧅', 'sautéed onions'),
+        ing('Poivrons', '🫑', 'roasted bell peppers'),
+        ing('Courgette', '🥒', 'zucchini slices'),
+        ing('Tomates cerises', '🍅', 'cherry tomatoes'),
+        ing('Épinards', '🥬', 'wilted spinach'),
+        ing('Olives', '🫒', 'black olives'),
+        ing('Aubergines', '🍆', 'grilled eggplant'),
+        ing('Brocoli', '🥦', 'broccoli florets'),
+        ing('Basilic', '🌿', 'fresh basil leaves')
+      ],
+      feculent: [
+        ing('Pain à l\'ail', '🍞', 'garlic bread on the side'),
+        ing('Croûtons', '🍞', 'golden croutons')
+      ],
+      autre: [
+        ing('Jaune d\'œuf', '🥚', 'a raw egg yolk on top'),
+        ing('Miel', '🍯', 'a honey drizzle'),
+        ing('Noix', '🌰', 'walnuts'),
+        ing('Poivre noir', '⚫', 'cracked black pepper')
+      ]
+    }
+  },
+  {
+    id: 'tasty-crousty',
+    name: 'Tasty Crousty',
+    emoji: '🍚',
+    possessive: 'son tasty crousty',
+    base: 'galette de riz croustillante',
+    imageLead: 'a Tasty Crousty, a golden crispy fried rice-cake sandwich with two crunchy rice buns',
+    ingredients: {
+      viande: [
+        ing('Poulet pané', '🍗', 'a crispy breaded chicken fillet'),
+        ing('Steak haché', '🥩', 'a beef patty'),
+        ing('Bacon', '🥓', 'crispy bacon strips'),
+        ing('Tenders', '🍗', 'crispy chicken tenders'),
+        ing('Nuggets', '🍗', 'chicken nuggets'),
+        ing('Viande kebab', '🥙', 'sliced kebab meat'),
+        ing('Cordon bleu', '🍗', 'a breaded cordon bleu'),
+        ing('Merguez', '🌭', 'grilled merguez sausage')
+      ],
+      poisson: [
+        ing('Poisson pané', '🐟', 'a crispy breaded fish fillet'),
+        ing('Crevettes panées', '🍤', 'crispy breaded shrimp')
+      ],
+      fromage: [
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Raclette', '🫕', 'melted raclette cheese'),
+        ing('Mozzarella', '🧀', 'stretchy mozzarella'),
+        ing('Fromage fondu', '🧀', 'oozing melted cheese')
+      ],
+      sauce: [
+        ing('Sauce algérienne', '🌶️', 'spicy Algerian sauce'),
+        ing('Sauce samouraï', '🌶️', 'spicy samurai sauce'),
+        ing('Sauce blanche', '🥛', 'white garlic sauce'),
+        ing('Sauce BBQ', '🔥', 'barbecue sauce'),
+        ing('Sauce curry', '🍛', 'curry sauce'),
+        ing('Sauce Biggy', '🥫', 'creamy burger sauce'),
+        ing('Sauce fromagère', '🧀', 'cheese sauce')
+      ],
+      legume: [
+        ing('Salade', '🥬', 'crisp lettuce'),
+        ing('Tomate', '🍅', 'tomato slices'),
+        ing('Oignons frits', '🧅', 'crispy fried onions'),
+        ing('Cornichons', '🥒', 'pickles'),
+        ing('Poivron', '🫑', 'bell pepper strips'),
+        ing('Carottes', '🥕', 'grated carrots'),
+        ing('Jalapeños', '🌶️', 'jalapeño slices')
+      ],
+      feculent: [
+        ing('Frites', '🍟', 'french fries'),
+        ing('Rösti', '🥔', 'a hash brown')
+      ],
+      fruit: [
+        ing('Ananas grillé', '🍍', 'grilled pineapple')
+      ],
+      autre: [
+        ing('Œuf au plat', '🍳', 'a fried egg'),
+        ing('Miel', '🍯', 'a honey drizzle')
+      ]
+    }
+  },
+  {
+    id: 'tarte',
+    name: 'Tarte salée',
+    emoji: '🥧',
+    possessive: 'sa tarte',
+    base: 'pâte brisée nature',
+    imageLead: 'a golden savory tart',
+    ingredients: {
+      base: [
+        ing('Pâte brisée', '🥧', 'on a golden shortcrust pastry'),
+        ing('Pâte feuilletée', '🥐', 'on a flaky puff pastry'),
+        ing('Pâte à la moutarde', '🟡', 'on a mustard-brushed pastry crust')
+      ],
+      viande: [
+        ing('Lardons', '🥓', 'smoked bacon bits'),
+        ing('Jambon', '🍖', 'diced ham'),
+        ing('Poulet', '🍗', 'chicken pieces'),
+        ing('Chorizo', '🌶️', 'chorizo slices'),
+        ing('Saucisse de Morteau', '🌭', 'smoked Morteau sausage slices'),
+        ing('Magret fumé', '🦆', 'smoked duck breast slices'),
+        ing('Jambon de Bayonne', '🍖', 'thin slices of Bayonne ham')
+      ],
+      poisson: [
+        ing('Saumon', '🍣', 'flaked salmon'),
+        ing('Thon', '🐟', 'flaked tuna'),
+        ing('Saint-Jacques', '🦪', 'seared scallops'),
+        ing('Crevettes', '🦐', 'shrimp')
+      ],
+      fromage: [
+        ing('Chèvre', '🐐', 'goat cheese rounds'),
+        ing('Emmental', '🧀', 'melted emmental'),
+        ing('Comté', '🧀', 'grated comté'),
+        ing('Roquefort', '🧀', 'crumbled roquefort'),
+        ing('Mozzarella', '🧀', 'mozzarella'),
+        ing('Brie', '🧀', 'brie slices'),
+        ing('Maroilles', '🧀', 'strong maroilles cheese'),
+        ing('Reblochon', '🫕', 'melted reblochon')
+      ],
+      sauce: [
+        ing('Appareil à quiche', '🥚', 'a creamy egg custard filling'),
+        ing('Crème fraîche', '🥛', 'a creamy filling'),
+        ing('Moutarde à l\'ancienne', '🟡', 'whole-grain mustard'),
+        ing('Pesto', '🌿', 'basil pesto'),
+        ing('Sauce tomate', '🍅', 'tomato sauce')
+      ],
+      legume: [
+        ing('Poireaux', '🥬', 'sautéed leeks'),
+        ing('Oignons', '🧅', 'caramelized onions'),
+        ing('Tomates', '🍅', 'tomato slices'),
+        ing('Courgette', '🥒', 'zucchini slices'),
+        ing('Champignons', '🍄', 'sliced mushrooms'),
+        ing('Épinards', '🥬', 'wilted spinach'),
+        ing('Poivrons', '🫑', 'roasted bell peppers'),
+        ing('Olives', '🫒', 'black olives'),
+        ing('Asperges', '🌱', 'asparagus tips'),
+        ing('Brocoli', '🥦', 'broccoli florets')
+      ],
+      feculent: [
+        ing('Pommes de terre', '🥔', 'thin potato slices')
+      ],
+      fruit: [
+        ing('Figues', '🟣', 'fig slices'),
+        ing('Poire', '🍐', 'pear slices'),
+        ing('Pomme', '🍎', 'apple slices')
+      ],
+      autre: [
+        ing('Œuf', '🍳', 'a baked egg'),
+        ing('Noix', '🌰', 'walnuts'),
+        ing('Miel', '🍯', 'a honey drizzle'),
+        ing('Herbes de Provence', '🌿', 'herbes de Provence'),
+        ing('Pignons de pin', '🌰', 'toasted pine nuts')
       ]
     }
   }
