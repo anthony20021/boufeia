@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { useGame } from './composables/useGame.js';
 import HomeScreen from './components/HomeScreen.vue';
 import LobbyScreen from './components/LobbyScreen.vue';
+import DraftScreen from './components/DraftScreen.vue';
+import MarketScreen from './components/MarketScreen.vue';
 import AuctionScreen from './components/AuctionScreen.vue';
 import MiniGameScreen from './components/MiniGameScreen.vue';
 import ResultsScreen from './components/ResultsScreen.vue';
@@ -37,6 +39,8 @@ const connectionLabel = computed(() => ({
     <main class="content">
       <HomeScreen v-if="!game" />
       <LobbyScreen v-else-if="phase === 'lobby'" />
+      <DraftScreen v-else-if="phase === 'draft'" />
+      <MarketScreen v-else-if="phase === 'shop' || phase === 'compose'" />
       <MiniGameScreen v-else-if="phase.startsWith('minigame')" />
       <ResultsScreen v-else-if="phase === 'judging' || phase === 'results'" />
       <section v-else-if="phase === 'abandoned'" class="card center-card">
@@ -49,6 +53,10 @@ const connectionLabel = computed(() => ({
     </main>
 
     <ChatPanel v-if="game" />
+
+    <transition name="flash">
+      <div v-if="state.flash" :key="state.flash" class="flash" role="status">{{ state.flash }}</div>
+    </transition>
 
     <transition name="toast">
       <div v-if="state.error" class="toast" role="alert">{{ state.error }}</div>

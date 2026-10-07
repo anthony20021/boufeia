@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useGame } from '../composables/useGame.js';
+import ModePicker from './ModePicker.vue';
 
 const { state, me, startGame, leave } = useGame();
 const game = computed(() => state.game);
@@ -39,6 +40,8 @@ async function copyCode() {
           <span class="lobby-name muted">En attente d'un adversaire<span class="dots"></span></span>
         </li>
       </ul>
+
+      <ModePicker />
 
       <button v-if="isHost" class="btn btn-primary btn-lg btn-block" :disabled="!ready" @click="startGame">
         {{ ready ? 'Lancer la partie 🔥' : 'En attente du 2e joueur…' }}

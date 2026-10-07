@@ -4,6 +4,8 @@ import { useGame } from '../composables/useGame.js';
 import PlayerCard from './PlayerCard.vue';
 import PlateView from './PlateView.vue';
 import TimerBar from './TimerBar.vue';
+import JokerBar from './JokerBar.vue';
+import SeriesBar from './SeriesBar.vue';
 
 const { state, me, opponent, bid, pass } = useGame();
 const game = computed(() => state.game);
@@ -36,21 +38,22 @@ function submitCustom() {
   if (value >= minBid.value && value <= me.value.budget) bid(value);
 }
 
-const nextLabel = computed(() => {
-  const g = game.value;
-  if (g.round >= g.totalRounds) return 'Le chef arrive dans';
-  if (g.round + 1 === g.minigameRound) return 'Mini-jeu dans';
-  return 'Prochain aliment dans';
-});
+// Le serveur indique ce qui suit : enchère, mini-jeu (prévu ou lancé par un joker) ou jugement
+const nextLabel = computed(() => ({
+  judging: 'Le chef arrive dans',
+  minigame: 'Mini-jeu dans'
+}[game.value.upcoming] || (game.value.phase === 'intro' ? 'Premier aliment dans' : 'Prochain aliment dans')));
 
 const logEntries = computed(() => [...game.value.log].reverse());
 </script>
 
 <template>
   <section class="auction-screen">
+    <SeriesBar />
     <div class="round-header">
       <span class="pill pill-strong">Round {{ Math.max(game.round, 1) }} / {{ game.totalRounds }}</span>
       <span class="pill">{{ game.theme.emoji }} {{ game.theme.name }}</span>
+      <span v-if="game.gameMode === 'blind'" class="pill pill-soft">🙈 À l'aveugle</span>
       <span v-if="game.round < game.minigameRound" class="pill pill-soft">🎮 Mini-jeu au round {{ game.minigameRound }}</span>
     </div>
 
@@ -67,15 +70,16 @@ const logEntries = computed(() => [...game.value.log].reverse());
         <div class="stage-emoji bounce">{{ game.theme.emoji }}</div>
         <h2 class="stage-title">{{ game.theme.name }}</h2>
         <p class="stage-sub">Base fournie : {{ game.theme.base }}. À vous de gagner la garniture !</p>
-        <TimerBar label="Premier aliment dans" />
+        <p v-if="game.gameMode === 'blind'" class="mg-note">🙈 Un aliment sur deux sera un mystère : on ne le découvre qu'après l'avoir payé.</p>
+        <TimerBar :label="nextLabel" />
       </template>
 
       <!-- Enchère en cours -->
       <template v-else-if="game.phase === 'auction' && auction">
         <p class="stage-kicker">{{ auction.item.categoryLabel }}</p>
-        <div :key="auction.item.id" class="stage-emoji pop">{{ auction.item.emoji }}</div>
+        <div :key="auction.item.id" class="stage-emoji pop" :class="{ mystery: auction.item.mystery }">{{ auction.item.emoji }}</div>
         <h2 class="stage-title">{{ auction.item.name }}</h2>
-        <p class="stage-sub">Qui le veut dans {{ game.theme.possessive }} ?</p>
+        <p class="stage-sub">{{ auction.item.mystery ? 'Personne ne sait ce que c\'est… Qui tente sa chance ?' : `Qui le veut dans ${game.theme.possessive} ?` }}</p>
 
         <div :key="auction.bid" class="current-bid" :class="{ mine: iLead, theirs: opponentLeads }">
           <template v-if="leader">
@@ -123,9 +127,12 @@ const logEntries = computed(() => [...game.value.log].reverse());
           {{ resultWinner.id === me.id ? 'Adjugé, pour vous !' : `Adjugé à ${resultWinner.name}` }}
           <strong>{{ result.price }} €</strong>
         </p>
+        <p v-if="result.fullPrice !== result.price" class="status-msg success">🏷️ Soldes : au lieu de {{ result.fullPrice }} €</p>
         <TimerBar :label="nextLabel" />
       </template>
     </div>
+
+    <JokerBar />
 
     <div class="plates">
       <PlateView :player="me" :theme="game.theme" title="Votre plat" />

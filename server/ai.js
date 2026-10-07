@@ -1,7 +1,8 @@
+import { randomInt } from 'crypto';
 import { config } from './config.js';
 
-// Appels à ollama_api (juge texte + génération d'image). Aucun texte saisi par les joueurs
-// n'est envoyé à l'IA : les candidats sont anonymisés en "A" et "B", et les ingrédients
+// Appels à ollama_api (juge texte, questions du quiz, génération d'image). Aucun texte saisi par
+// les joueurs n'est envoyé à l'IA : les candidats sont anonymisés en "A" et "B", et les ingrédients
 // viennent du catalogue du serveur (pas d'injection de prompt possible via les pseudos).
 
 export class ApiError extends Error {
@@ -46,7 +47,7 @@ const apiFetch = async (path, { method = 'GET', body, timeoutMs = 10000 } = {}) 
   return data;
 };
 
-// --- Juge ---
+// --- Modèle de langage (juge et quiz) ---
 
 let autoModel = null;
 const resolveJudgeModel = async () => {
@@ -59,6 +60,70 @@ const resolveJudgeModel = async () => {
   return autoModel;
 };
 
+// Objet JSON contenu dans une réponse du modèle (balises <think> et blocs ``` ignorés)
+const extractJson = (content) => {
+  if (typeof content !== 'string') return null;
+  const text = content.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/```(?:json)?/gi, '');
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end <= start) return null;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Interroge le modèle jusqu'à obtenir une réponse exploitable : parse() renvoie le résultat ou null.
+ * Réessaie si la réponse est illisible ou si le GPU est occupé, lève la dernière erreur sinon.
+ * label / who : pour les journaux (« Juge IA », « du juge »).
+ */
+const askModel = async ({ label, who, messages, parse, timeoutMs, temperature, maxTokens }) => {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = null;
+  let failures = 0;
+
+  while (failures < 3 && Date.now() < deadline) {
+    try {
+      const model = await resolveJudgeModel();
+      const data = await apiFetch('/api/chat', {
+        method: 'POST',
+        body: {
+          model,
+          messages,
+          stream: false,
+          think: false,
+          options: { temperature, num_predict: maxTokens }
+        },
+        timeoutMs: Math.max(5000, deadline - Date.now())
+      });
+      const result = parse(data?.message?.content);
+      if (result) return { result, model };
+      failures++;
+      lastError = new Error(`réponse ${who} illisible`);
+      console.warn(`⚠️  Réponse ${who} illisible, nouvelle tentative`);
+    } catch (error) {
+      lastError = error;
+      if (error.status === 503) {
+        // Le GPU génère une image pour une autre partie : on patiente
+        const wait = clamp((error.retryAfter || 15) * 1000, 2000, 30000);
+        if (Date.now() + wait >= deadline) break;
+        console.log(`⏳ GPU occupé, nouvel essai ${who} dans ${Math.round(wait / 1000)} s`);
+        await sleep(wait);
+        continue;
+      }
+      console.warn(`⚠️  ${label} : ${error.message}`);
+      if ([400, 401, 403, 404].includes(error.status)) break; // erreur de configuration
+      failures++;
+      await sleep(2000);
+    }
+  }
+  throw lastError || new Error('délai dépassé');
+};
+
+// --- Juge ---
+
 const describePlate = (theme, plate) => {
   const names = plate.items.map((i) => i.name.toLowerCase());
   return names.length
@@ -66,12 +131,17 @@ const describePlate = (theme, plate) => {
     : `Plat du candidat ${plate.label} : ${theme.name} avec seulement la base (${theme.base}), aucun ingrédient.`;
 };
 
-const buildJudgeMessages = (theme, plates) => [
+const ORIGINS = {
+  auction: 'remportés aux enchères',
+  market: 'achetés au supermarché avant de savoir quel plat préparer'
+};
+
+const buildJudgeMessages = (theme, plates, origin) => [
   {
     role: 'system',
     content: [
       'Tu es « Chef Gustave », juge d\'un concours de cuisine télévisé, exigeant mais plein d\'humour.',
-      `Deux candidats, A et B, ont chacun composé un plat de type « ${theme.name} » uniquement avec les ingrédients remportés aux enchères, en plus de la base fournie (${theme.base}).`,
+      `Deux candidats, A et B, ont chacun composé un plat de type « ${theme.name} » uniquement avec les ingrédients ${ORIGINS[origin] || ORIGINS.auction}, en plus de la base fournie (${theme.base}).`,
       'Évalue chaque plat sur le goût probable, l\'harmonie des saveurs, l\'équilibre, la générosité et l\'originalité.',
       'Un plat avec très peu d\'ingrédients est décevant. Une association absurde (par exemple confiture de figues et poisson pané) est pénalisée, sauf si elle est vraiment audacieuse et cohérente.',
       'Désigne les candidats uniquement par « candidat A » et « candidat B ».',
@@ -96,18 +166,8 @@ const pickWinners = (dishes, labels, declared) => {
 };
 
 const parseVerdict = (content, theme, plates) => {
-  if (typeof content !== 'string') return null;
-  const text = content.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/```(?:json)?/gi, '');
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start === -1 || end <= start) return null;
-
-  let raw;
-  try {
-    raw = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    return null;
-  }
+  const raw = extractJson(content);
+  if (!raw) return null;
 
   const labels = plates.map((p) => p.label);
   const dishes = {};
@@ -161,59 +221,95 @@ const fallbackVerdict = (theme, plates) => {
 
 /**
  * plates : [{ label: 'A' | 'B', items: [ingrédients du catalogue] }]
+ * origin : 'auction' (enchères) ou 'market' (supermarché, plat inconnu au moment des achats)
  * Ne lève jamais d'erreur : en cas d'échec, renvoie un verdict calculé (source "auto").
  */
-export const judgeDishes = async ({ theme, plates }) => {
-  const deadline = Date.now() + config.judgeTimeoutMs;
-  let lastError = null;
-  let failures = 0;
-
-  while (failures < 3 && Date.now() < deadline) {
-    try {
-      const model = await resolveJudgeModel();
-      const data = await apiFetch('/api/chat', {
-        method: 'POST',
-        body: {
-          model,
-          messages: buildJudgeMessages(theme, plates),
-          stream: false,
-          think: false,
-          options: { temperature: 0.8, num_predict: 800 }
-        },
-        timeoutMs: Math.max(5000, deadline - Date.now())
-      });
-      const verdict = parseVerdict(data?.message?.content, theme, plates);
-      if (verdict) {
-        console.log(`🧑‍🍳 Verdict du juge IA reçu (${model})`);
-        return { ...verdict, source: 'ia' };
-      }
-      failures++;
-      lastError = new Error('réponse du juge illisible');
-      console.warn('⚠️  Réponse du juge IA illisible, nouvelle tentative');
-    } catch (error) {
-      lastError = error;
-      if (error.status === 503) {
-        // Le GPU génère une image pour une autre partie : on patiente
-        const wait = clamp((error.retryAfter || 15) * 1000, 2000, 30000);
-        if (Date.now() + wait >= deadline) break;
-        console.log(`⏳ GPU occupé, nouvel essai du juge dans ${Math.round(wait / 1000)} s`);
-        await sleep(wait);
-        continue;
-      }
-      console.warn(`⚠️  Juge IA : ${error.message}`);
-      if ([400, 401, 403, 404].includes(error.status)) break; // erreur de configuration
-      failures++;
-      await sleep(2000);
-    }
+export const judgeDishes = async ({ theme, plates, origin = 'auction' }) => {
+  try {
+    const { result, model } = await askModel({
+      label: 'Juge IA',
+      who: 'du juge',
+      messages: buildJudgeMessages(theme, plates, origin),
+      parse: (content) => parseVerdict(content, theme, plates),
+      timeoutMs: config.judgeTimeoutMs,
+      temperature: 0.8,
+      maxTokens: 800
+    });
+    console.log(`🧑‍🍳 Verdict du juge IA reçu (${model})`);
+    return { ...result, source: 'ia' };
+  } catch (error) {
+    console.warn(`⚠️  Juge IA indisponible, verdict automatique : ${error.message}`);
+    return {
+      ...fallbackVerdict(theme, plates),
+      source: 'auto',
+      notice: `Le chef IA n'a pas pu juger (${error.message}). Verdict calculé automatiquement.`
+    };
   }
+};
 
-  const reason = lastError ? lastError.message : 'délai dépassé';
-  console.warn(`⚠️  Juge IA indisponible, verdict automatique : ${reason}`);
-  return {
-    ...fallbackVerdict(theme, plates),
-    source: 'auto',
-    notice: `Le chef IA n'a pas pu juger (${reason}). Verdict calculé automatiquement.`
-  };
+// --- Quiz ---
+
+const QUIZ_TIMEOUT_MS = 120000;
+const QUIZ_TOPICS = [
+  'fromages', 'épices et aromates', 'pâtisserie', 'fruits et légumes', 'plats du monde', 'cuisine régionale française',
+  'street food', 'boissons', 'techniques de cuisine', 'histoire des aliments', 'produits de la mer',
+  'pain et viennoiseries', 'cuisine italienne', 'cuisine asiatique', 'desserts', 'charcuterie'
+];
+
+const pickSome = (list, count) => {
+  const pool = [...list];
+  return Array.from({ length: Math.min(count, pool.length) }, () => pool.splice(randomInt(pool.length), 1)[0]);
+};
+
+const buildQuizMessages = (theme, count) => [
+  {
+    role: 'system',
+    content: [
+      'Tu es l\'animateur d\'un quiz télévisé sur la cuisine, drôle et bienveillant.',
+      `Écris ${count} questions de culture générale culinaire en français, de difficulté facile à moyenne.`,
+      'Chaque question a exactement 4 réponses courtes (6 mots maximum) et une seule bonne réponse, qui doit être un fait certain et incontestable.',
+      'Les mauvaises réponses sont plausibles mais clairement fausses. Pas de question piège, d\'opinion ou de chiffre approximatif.',
+      'Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, exactement dans ce format :',
+      '{"questions":[{"question":"…?","reponses":["…","…","…","…"],"bonne":2}]}',
+      '"bonne" est l\'indice (de 0 à 3) de la bonne réponse dans "reponses".'
+    ].join('\n')
+  },
+  {
+    role: 'user',
+    content: `Les deux joueurs composent un plat de type « ${theme.name} ». Thèmes de cette partie : ${pickSome(QUIZ_TOPICS, 3).join(', ')}, plus une question en lien avec « ${theme.name} » ou ses ingrédients. Écris les ${count} questions.`
+  }
+];
+
+// Questions valides uniquement : 4 réponses distinctes, indice de la bonne réponse correct
+const parseQuiz = (content, count) => {
+  const raw = extractJson(content);
+  const questions = [];
+  for (const entry of Array.isArray(raw?.questions) ? raw.questions : []) {
+    const question = cleanText(entry?.question, 200);
+    const answers = Array.isArray(entry?.reponses) ? entry.reponses.map((a) => cleanText(String(a ?? ''), 80)) : [];
+    const index = Number(entry?.bonne);
+    if (!question || answers.length !== 4 || answers.some((a) => !a)) continue;
+    if (new Set(answers.map((a) => a.toLowerCase())).size !== 4) continue;
+    if (!Number.isInteger(index) || index < 0 || index > 3) continue;
+    questions.push({ question, correct: answers[index], wrong: answers.filter((_, i) => i !== index) });
+    if (questions.length === count) break;
+  }
+  return questions.length ? questions : null;
+};
+
+// Renvoie 1 à `count` questions { question, correct, wrong[] }, ou lève une erreur
+export const generateQuizQuestions = async ({ theme, count }) => {
+  const { result, model } = await askModel({
+    label: 'Quiz IA',
+    who: 'du quiz',
+    messages: buildQuizMessages(theme, count),
+    parse: (content) => parseQuiz(content, count),
+    timeoutMs: QUIZ_TIMEOUT_MS,
+    temperature: 1,
+    maxTokens: 1200
+  });
+  console.log(`🛎️  Questions du quiz générées par l'IA (${model})`);
+  return result;
 };
 
 // --- Image ---

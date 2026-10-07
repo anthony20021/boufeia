@@ -8,6 +8,8 @@ import { randomInt } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { Room, GameError, sanitizeName } from './game.js';
 import { checkApi } from './ai.js';
+import { minigameList, secretMinigameCount } from './minigames/index.js';
+import { MODES } from './modes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '..', 'client', 'dist');
@@ -33,7 +35,12 @@ app.get('/api/rules', (req, res) => {
     totalRounds: config.totalRounds,
     minigameRound: config.minigameRound,
     bonusMin: config.bonusMin,
-    bonusMax: config.bonusMax
+    bonusMax: config.bonusMax,
+    jokersPerPlayer: config.jokersPerPlayer,
+    minigames: minigameList(),
+    secretMinigames: secretMinigameCount(),
+    modes: MODES,
+    starRounds: config.starRounds
   });
 });
 

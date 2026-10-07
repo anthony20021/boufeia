@@ -2,10 +2,20 @@
 import { computed } from 'vue';
 import { useGame } from '../composables/useGame.js';
 import PlateView from './PlateView.vue';
+import SeriesBar from './SeriesBar.vue';
+import ModePicker from './ModePicker.vue';
 
 const { state, me, opponent, rematch, leave } = useGame();
 const game = computed(() => state.game);
 const results = computed(() => game.value.results);
+const series = computed(() => game.value.series);
+const seriesWinner = computed(() => (series.value?.winnerId ? game.value.players.find((p) => p.id === series.value.winnerId) : null));
+const currentMode = computed(() => (game.value.modes || []).find((m) => m.id === game.value.mode));
+const MODE_LABELS = { classic: '🍽️ Classique', blind: '🙈 À l\'aveugle', market: '🛒 Supermarché' };
+const replayLabel = computed(() => {
+  if (series.value && !series.value.winnerId) return '▶️ Manche suivante';
+  return series.value ? '🔁 Nouvelle série' : '🔁 Rejouer';
+});
 
 // Vous d'abord, puis l'adversaire
 const players = computed(() => [me.value, opponent.value].filter(Boolean));
@@ -42,6 +52,18 @@ const fileName = (player) => `gennourriture-${player.name.replace(/[^\w-]+/g, '_
 
     <!-- Verdict -->
     <template v-else-if="results">
+      <div v-if="series" class="card center-card series-card" :class="{ win: seriesWinner?.id === me.id }">
+        <p class="stage-kicker">⭐ Mode étoile · premier à {{ series.target }} étoiles</p>
+        <h2 v-if="seriesWinner" class="banner">🌟 {{ seriesWinner.id === me.id ? 'Vous remportez le mode étoile !' : `${seriesWinner.name} remporte le mode étoile !` }}</h2>
+        <SeriesBar />
+        <ol class="series-history">
+          <li v-for="entry in series.history" :key="entry.manche">
+            Manche {{ entry.manche }} · {{ MODE_LABELS[entry.mode] }} · {{ entry.theme.emoji }} {{ entry.theme.name }} →
+            <strong>{{ entry.winnerId ? (entry.winnerId === me.id ? 'vous ⭐' : `${game.players.find((p) => p.id === entry.winnerId)?.name} ⭐`) : 'égalité' }}</strong>
+          </li>
+        </ol>
+      </div>
+
       <div class="card center-card verdict-card" :class="{ win: iWon, tie: isTie }">
         <h2 class="banner">{{ banner }}</h2>
         <blockquote class="verdict">« {{ results.verdict }} »<cite>Chef Gustave</cite></blockquote>
@@ -97,9 +119,14 @@ const fileName = (player) => `gennourriture-${player.name.replace(/[^\w-]+/g, '_
         <p v-if="opponentGone" class="muted">{{ opponent.name }} a quitté la partie.</p>
         <template v-else>
           <button class="btn btn-primary btn-lg" :disabled="me.rematch" @click="rematch">
-            {{ me.rematch ? 'Prêt ! En attente de l\'adversaire…' : '🔁 Rejouer' }}
+            {{ me.rematch ? 'C\'est noté ! En attente de l\'adversaire…' : replayLabel }}
           </button>
-          <p v-if="opponent?.rematch && !me.rematch" class="muted">{{ opponent.name }} veut une revanche !</p>
+          <p v-if="opponent?.rematch && !me.rematch" class="muted">{{ opponent.name }} {{ series && !series.winnerId ? 'attend la manche suivante' : 'veut une revanche' }} !</p>
+          <details class="mode-switch">
+            <summary>🎛️ Mode : {{ currentMode ? `${currentMode.emoji} ${currentMode.name}` : '' }} <span class="muted">(changer)</span></summary>
+            <ModePicker />
+            <p v-if="series && !series.winnerId" class="muted small">Changer de mode abandonne la série d'étoiles en cours.</p>
+          </details>
         </template>
         <button class="btn btn-ghost" @click="leave">Quitter</button>
       </div>

@@ -1,8 +1,9 @@
-import { randomInt } from 'crypto';
+import { randomBytes, randomInt } from 'crypto';
 
 // Un plat est tiré au sort à chaque partie, avec son propre catalogue d'ingrédients.
 // "base" : ce que chaque joueur a d'office. "imageLead" : début du prompt d'image (en anglais).
 // "possessive" : pour les phrases de l'interface ("dans sa pizza").
+// "minMeat" : viandes garanties parmi les aliments mis en jeu (2 par défaut si le plat en propose).
 
 export const CATEGORY_LABELS = {
   base: 'Base',
@@ -13,6 +14,8 @@ export const CATEGORY_LABELS = {
   legume: 'Légume',
   feculent: 'Féculent',
   fruit: 'Fruit',
+  sucre: 'Gourmandise',
+  boisson: 'Boisson',
   autre: 'Autre'
 };
 
@@ -860,10 +863,338 @@ export const THEMES = [
         ing('Herbes de Provence', '🌿', 'herbes de Provence')
       ]
     }
+  },
+  {
+    id: 'mcflurry',
+    name: 'McFlurry',
+    emoji: '🍦',
+    possessive: 'son McFlurry',
+    base: 'glace vanille à l\'italienne',
+    imageLead: 'a McFlurry-style soft serve vanilla ice cream dessert swirled in a clear cup with a long spoon',
+    ingredients: {
+      base: [
+        ing('Glace chocolat', '🍫', 'chocolate soft serve instead of vanilla'),
+        ing('Glace caramel', '🍮', 'caramel soft serve instead of vanilla'),
+        ing('Sorbet fraise', '🍓', 'strawberry sorbet instead of vanilla')
+      ],
+      sauce: [
+        ing('Coulis de chocolat', '🍫', 'a chocolate fudge drizzle'),
+        ing('Caramel beurre salé', '🍯', 'a salted caramel drizzle'),
+        ing('Coulis de fraise', '🍓', 'a strawberry coulis'),
+        ing('Coulis de fruits rouges', '🫐', 'a red berry coulis'),
+        ing('Sauce chocolat blanc', '🥛', 'a white chocolate sauce'),
+        ing('Pâte à tartiner', '🌰', 'chocolate hazelnut spread'),
+        ing('Lait concentré sucré', '🥛', 'sweetened condensed milk'),
+        ing('Sauce pistache', '🟢', 'a pistachio cream drizzle')
+      ],
+      sucre: [
+        ing('Bonbons chocolatés', '🍬', 'colorful candy-coated chocolates'),
+        ing('Biscuits cacao', '🍪', 'crushed chocolate sandwich cookies'),
+        ing('Morceaux de cookie', '🍪', 'chunks of chocolate chip cookie'),
+        ing('Brownie', '🟫', 'brownie pieces'),
+        ing('Spéculoos', '🍪', 'crushed speculoos biscuits'),
+        ing('Gaufrettes chocolatées', '🍫', 'chocolate wafer pieces'),
+        ing('Éclats de caramel croquant', '🍬', 'crunchy toffee pieces'),
+        ing('Marshmallows', '🍡', 'mini marshmallows'),
+        ing('Bonbons fraise', '🍓', 'strawberry gummy candies'),
+        ing('Pépites de chocolat', '🍫', 'chocolate chips'),
+        ing('Meringue', '🤍', 'crushed meringue'),
+        ing('Pop-corn caramel', '🍿', 'caramel popcorn'),
+        ing('Céréales croustillantes', '🥣', 'crunchy breakfast cereal')
+      ],
+      fruit: [
+        ing('Fraises', '🍓', 'fresh strawberries'),
+        ing('Banane', '🍌', 'banana slices'),
+        ing('Myrtilles', '🫐', 'blueberries'),
+        ing('Mangue', '🥭', 'mango cubes'),
+        ing('Kiwi', '🥝', 'kiwi slices'),
+        ing('Cerises', '🍒', 'cherries'),
+        ing('Fruit de la passion', '🟡', 'passion fruit pulp')
+      ],
+      autre: [
+        ing('Chantilly', '☁️', 'whipped cream'),
+        ing('Amandes effilées', '🌰', 'toasted sliced almonds'),
+        ing('Noisettes concassées', '🌰', 'crushed hazelnuts'),
+        ing('Noix de coco râpée', '🥥', 'shredded coconut'),
+        ing('Vermicelles colorés', '🌈', 'rainbow sprinkles'),
+        ing('Feuilles de menthe', '🌿', 'fresh mint leaves'),
+        ing('Fleur de sel', '🧂', 'a pinch of flaky sea salt'),
+        ing('Cacahuètes caramélisées', '🥜', 'caramelized peanuts'),
+        ing('Bacon caramélisé', '🥓', 'candied bacon bits'),
+        ing('Frites', '🍟', 'french fries stuck in the ice cream'),
+        ing('Piment d\'Espelette', '🌶️', 'a dusting of Espelette chili')
+      ]
+    }
+  },
+  {
+    id: 'boisson-chaude',
+    name: 'Boisson chaude',
+    emoji: '☕',
+    possessive: 'sa boisson chaude',
+    base: 'grande tasse de lait chaud',
+    imageLead: 'a steaming hot drink in a large ceramic mug, generously topped',
+    ingredients: {
+      base: [
+        ing('Lait d\'avoine', '🥛', 'made with oat milk'),
+        ing('Lait de coco', '🥥', 'made with coconut milk'),
+        ing('Lait d\'amande', '🥛', 'made with almond milk')
+      ],
+      boisson: [
+        ing('Espresso', '☕', 'a double shot of espresso'),
+        ing('Chocolat noir fondu', '🍫', 'melted dark chocolate'),
+        ing('Thé noir', '🫖', 'strong black tea'),
+        ing('Thé matcha', '🍵', 'whisked matcha green tea'),
+        ing('Chaï', '🫖', 'spiced chai tea'),
+        ing('Rooibos', '🍂', 'rooibos tea'),
+        ing('Cacao en poudre', '🟤', 'cocoa powder')
+      ],
+      sauce: [
+        ing('Sirop de vanille', '🍶', 'vanilla syrup'),
+        ing('Sirop de caramel', '🍯', 'caramel syrup'),
+        ing('Sirop de noisette', '🌰', 'hazelnut syrup'),
+        ing('Sirop d\'érable', '🍁', 'maple syrup'),
+        ing('Sirop de menthe', '🌿', 'mint syrup'),
+        ing('Caramel beurre salé', '🍯', 'a salted caramel drizzle'),
+        ing('Sauce chocolat', '🍫', 'a chocolate sauce drizzle'),
+        ing('Miel', '🍯', 'a spoon of honey')
+      ],
+      sucre: [
+        ing('Marshmallows', '🍡', 'toasted marshmallows'),
+        ing('Spéculoos', '🍪', 'a speculoos biscuit on the side'),
+        ing('Copeaux de chocolat', '🍫', 'chocolate shavings'),
+        ing('Sucre de canne', '🟫', 'cane sugar'),
+        ing('Pain d\'épices', '🍞', 'a slice of gingerbread on the side'),
+        ing('Biscuit sablé', '🍪', 'a butter shortbread cookie on the side'),
+        ing('Sucre d\'orge', '🍭', 'a candy cane')
+      ],
+      fruit: [
+        ing('Zeste d\'orange', '🍊', 'orange zest'),
+        ing('Citron', '🍋', 'a lemon slice'),
+        ing('Banane', '🍌', 'blended banana'),
+        ing('Fruit de la passion', '🟡', 'passion fruit')
+      ],
+      fromage: [
+        ing('Fromage à café', '🧀', 'cubes of Finnish coffee cheese')
+      ],
+      autre: [
+        ing('Chantilly', '☁️', 'a tall swirl of whipped cream'),
+        ing('Mousse de lait', '🥛', 'thick milk foam'),
+        ing('Cannelle', '🟤', 'a cinnamon stick'),
+        ing('Gingembre', '🌿', 'fresh ginger'),
+        ing('Cardamome', '🌿', 'crushed cardamom'),
+        ing('Badiane', '⭐', 'a star anise'),
+        ing('Muscade', '🌰', 'grated nutmeg'),
+        ing('Piment', '🌶️', 'a pinch of chili'),
+        ing('Fleur de sel', '🧂', 'a pinch of sea salt'),
+        ing('Beurre', '🧈', 'a knob of butter melted in'),
+        ing('Jaune d\'œuf', '🥚', 'a whisked egg yolk'),
+        ing('Feuilles de menthe', '🌿', 'fresh mint leaves')
+      ]
+    }
+  },
+  {
+    id: 'gaufre',
+    name: 'Gaufre',
+    emoji: '🧇',
+    possessive: 'sa gaufre',
+    base: 'gaufre nature',
+    imageLead: 'a golden crispy Belgian waffle on a plate',
+    minMeat: 0, // une gaufre peut rester sucrée
+    ingredients: {
+      base: [
+        ing('Gaufre de Liège', '🧇', 'made as a caramelized Liège waffle'),
+        ing('Gaufre au chocolat', '🍫', 'made as a chocolate waffle'),
+        ing('Gaufre de patate douce', '🍠', 'made as a sweet potato waffle')
+      ],
+      sauce: [
+        ing('Pâte à tartiner', '🌰', 'chocolate hazelnut spread'),
+        ing('Caramel beurre salé', '🍯', 'a salted caramel drizzle'),
+        ing('Sirop d\'érable', '🍁', 'maple syrup'),
+        ing('Coulis de fraise', '🍓', 'a strawberry coulis'),
+        ing('Chocolat fondu', '🍫', 'melted chocolate'),
+        ing('Miel', '🍯', 'a honey drizzle'),
+        ing('Confiture de fraise', '🍓', 'strawberry jam'),
+        ing('Crème de marrons', '🌰', 'chestnut cream'),
+        ing('Lemon curd', '🍋', 'lemon curd')
+      ],
+      fruit: [
+        ing('Fraises', '🍓', 'fresh strawberries'),
+        ing('Banane', '🍌', 'banana slices'),
+        ing('Myrtilles', '🫐', 'blueberries'),
+        ing('Pomme caramélisée', '🍎', 'caramelized apple slices'),
+        ing('Poire', '🍐', 'poached pear slices'),
+        ing('Mangue', '🥭', 'mango cubes'),
+        ing('Kiwi', '🥝', 'kiwi slices')
+      ],
+      sucre: [
+        ing('Sucre glace', '❄️', 'a dusting of powdered sugar'),
+        ing('Spéculoos', '🍪', 'crushed speculoos'),
+        ing('Marshmallows', '🍡', 'toasted marshmallows'),
+        ing('Pépites de chocolat', '🍫', 'chocolate chips'),
+        ing('Nougatine', '🍬', 'crunchy nougatine'),
+        ing('Meringue', '🤍', 'crushed meringue'),
+        ing('Bonbons chocolatés', '🍬', 'colorful candy-coated chocolates')
+      ],
+      autre: [
+        ing('Chantilly', '☁️', 'whipped cream'),
+        ing('Boule de glace vanille', '🍨', 'a scoop of vanilla ice cream'),
+        ing('Amandes effilées', '🌰', 'toasted sliced almonds'),
+        ing('Noix de coco râpée', '🥥', 'shredded coconut'),
+        ing('Cannelle', '🟤', 'a dusting of cinnamon'),
+        ing('Fleur de sel', '🧂', 'a pinch of flaky sea salt'),
+        ing('Œuf au plat', '🍳', 'a fried egg')
+      ],
+      viande: [
+        ing('Poulet frit', '🍗', 'crispy fried chicken'),
+        ing('Bacon', '🥓', 'crispy bacon'),
+        ing('Jambon', '🍖', 'sliced ham')
+      ],
+      poisson: [
+        ing('Saumon fumé', '🍣', 'smoked salmon')
+      ],
+      fromage: [
+        ing('Cheddar', '🧀', 'melted cheddar'),
+        ing('Chèvre', '🐐', 'goat cheese'),
+        ing('Fromage frais', '🧀', 'herbed cream cheese')
+      ]
+    }
+  },
+  {
+    id: 'ramen',
+    name: 'Ramen',
+    emoji: '🍜',
+    possessive: 'son ramen',
+    base: 'bouillon et nouilles de blé',
+    imageLead: 'a steaming bowl of Japanese ramen with wheat noodles in broth',
+    ingredients: {
+      base: [
+        ing('Bouillon tonkotsu', '🍲', 'in a rich creamy tonkotsu pork broth'),
+        ing('Bouillon miso', '🍲', 'in a miso broth'),
+        ing('Bouillon shoyu', '🍲', 'in a clear soy sauce broth'),
+        ing('Bouillon épicé', '🌶️', 'in a spicy red broth')
+      ],
+      viande: [
+        ing('Chashu de porc', '🐖', 'slices of braised chashu pork belly'),
+        ing('Poulet karaage', '🍗', 'crispy karaage fried chicken'),
+        ing('Bœuf émincé', '🥩', 'thinly sliced beef'),
+        ing('Canard laqué', '🦆', 'slices of lacquered duck'),
+        ing('Porc haché épicé', '🌶️', 'spicy minced pork'),
+        ing('Gyoza', '🥟', 'pan-fried gyoza dumplings')
+      ],
+      poisson: [
+        ing('Crevettes', '🍤', 'shrimp'),
+        ing('Narutomaki', '🍥', 'narutomaki fish cake slices'),
+        ing('Saumon grillé', '🐟', 'seared salmon'),
+        ing('Calamar', '🦑', 'grilled squid')
+      ],
+      fromage: [
+        ing('Cheddar fondu', '🧀', 'a melted slice of cheddar')
+      ],
+      sauce: [
+        ing('Huile pimentée', '🌶️', 'chili oil'),
+        ing('Sauce soja', '🥫', 'soy sauce'),
+        ing('Huile de sésame', '🌰', 'sesame oil'),
+        ing('Sriracha', '🌶️', 'sriracha'),
+        ing('Ail noir', '🧄', 'black garlic oil'),
+        ing('Pâte de miso', '🥣', 'a spoon of miso paste')
+      ],
+      legume: [
+        ing('Ciboule', '🌱', 'sliced green onions'),
+        ing('Pousses de bambou', '🎋', 'bamboo shoots'),
+        ing('Shiitakés', '🍄', 'shiitake mushrooms'),
+        ing('Pak choï', '🥬', 'baby bok choy'),
+        ing('Germes de soja', '🌱', 'bean sprouts'),
+        ing('Maïs', '🌽', 'sweet corn'),
+        ing('Feuille de nori', '🟩', 'a sheet of nori'),
+        ing('Épinards', '🥬', 'wilted spinach'),
+        ing('Kimchi', '🌶️', 'kimchi'),
+        ing('Radis', '🔴', 'sliced radish')
+      ],
+      feculent: [
+        ing('Nouilles en plus', '🍜', 'an extra portion of noodles'),
+        ing('Riz', '🍚', 'a side of rice')
+      ],
+      autre: [
+        ing('Œuf mariné', '🥚', 'a soft-boiled marinated ramen egg cut in half'),
+        ing('Graines de sésame', '⚪', 'toasted sesame seeds'),
+        ing('Gingembre mariné', '🌿', 'pickled ginger'),
+        ing('Beurre', '🧈', 'a knob of butter'),
+        ing('Tofu frit', '⬜', 'fried tofu cubes'),
+        ing('Citron vert', '🍋', 'a lime wedge')
+      ]
+    }
+  },
+  {
+    id: 'burrito',
+    name: 'Burrito',
+    emoji: '🌯',
+    possessive: 'son burrito',
+    base: 'grande tortilla de blé',
+    imageLead: 'a big stuffed burrito cut in half showing the filling',
+    ingredients: {
+      base: [
+        ing('Tortilla complète', '🫓', 'wrapped in a whole wheat tortilla'),
+        ing('Tortilla aux épinards', '🫓', 'wrapped in a green spinach tortilla'),
+        ing('Tortilla de maïs', '🌽', 'wrapped in a corn tortilla')
+      ],
+      viande: [
+        ing('Bœuf haché épicé', '🥩', 'spicy ground beef'),
+        ing('Poulet grillé', '🍗', 'grilled chicken strips'),
+        ing('Carnitas', '🐖', 'carnitas pulled pork'),
+        ing('Chorizo', '🌶️', 'crumbled chorizo'),
+        ing('Barbacoa', '🥩', 'barbacoa shredded beef'),
+        ing('Chili con carne', '🌶️', 'chili con carne'),
+        ing('Bacon', '🥓', 'crispy bacon')
+      ],
+      poisson: [
+        ing('Crevettes grillées', '🍤', 'grilled shrimp'),
+        ing('Poisson pané', '🐟', 'crispy fried fish')
+      ],
+      fromage: [
+        ing('Cheddar', '🧀', 'shredded cheddar'),
+        ing('Monterey Jack', '🧀', 'melted Monterey Jack'),
+        ing('Queso fresco', '🧀', 'crumbled queso fresco')
+      ],
+      sauce: [
+        ing('Salsa tomate', '🍅', 'tomato salsa'),
+        ing('Guacamole', '🥑', 'guacamole'),
+        ing('Crème aigre', '🥛', 'sour cream'),
+        ing('Sauce chipotle', '🌶️', 'smoky chipotle sauce'),
+        ing('Salsa verde', '🟢', 'salsa verde'),
+        ing('Sauce fromagère', '🧀', 'cheese sauce'),
+        ing('Sauce piquante', '🌶️', 'hot sauce')
+      ],
+      legume: [
+        ing('Haricots noirs', '🫘', 'black beans'),
+        ing('Haricots rouges', '🫘', 'refried red beans'),
+        ing('Maïs grillé', '🌽', 'charred corn'),
+        ing('Poivrons', '🫑', 'sautéed bell peppers'),
+        ing('Oignons rouges', '🧅', 'pickled red onions'),
+        ing('Jalapeños', '🌶️', 'jalapeño slices'),
+        ing('Salade', '🥬', 'shredded lettuce'),
+        ing('Tomates', '🍅', 'diced tomatoes'),
+        ing('Coriandre', '🌿', 'fresh cilantro')
+      ],
+      feculent: [
+        ing('Riz mexicain', '🍚', 'Mexican red rice'),
+        ing('Riz à la coriandre', '🍚', 'cilantro lime rice'),
+        ing('Frites', '🍟', 'french fries inside'),
+        ing('Chips de maïs', '🌽', 'crushed tortilla chips')
+      ],
+      fruit: [
+        ing('Ananas grillé', '🍍', 'grilled pineapple'),
+        ing('Mangue', '🥭', 'mango salsa'),
+        ing('Citron vert', '🍋', 'a squeeze of lime')
+      ],
+      autre: [
+        ing('Œuf brouillé', '🍳', 'scrambled eggs'),
+        ing('Graines de courge', '🎃', 'toasted pumpkin seeds')
+      ]
+    }
   }
 ];
 
-const MIN_MEAT = 2;
+const DEFAULT_MIN_MEAT = 2;
 const MAX_BASE = 1; // un seul pain / une seule base mise aux enchères par partie
 
 const pick = (list) => list[randomInt(list.length)];
@@ -876,9 +1207,17 @@ const shuffle = (list) => {
   return list;
 };
 
-export const pickTheme = () => pick(THEMES);
+// Exemplaire d'un ingrédient dans une partie : "uid" est opaque (ne trahit pas un aliment mystère)
+const gameItem = (ingredient, category) => ({
+  ...ingredient,
+  category,
+  categoryLabel: CATEGORY_LABELS[category],
+  uid: randomBytes(6).toString('hex')
+});
 
-// Au moins 2 viandes, le reste tiré au hasard (catégorie d'abord, pour garder de la variété)
+export const pickTheme = (exclude = null) => pick(THEMES.filter((theme) => theme.id !== exclude));
+
+// Au moins 2 viandes (selon le plat), le reste tiré au hasard (catégorie d'abord, pour garder de la variété)
 export const buildRoundItems = (theme, rounds) => {
   const remaining = Object.fromEntries(
     Object.entries(theme.ingredients).map(([category, list]) => [category, [...list]])
@@ -890,10 +1229,11 @@ export const buildRoundItems = (theme, rounds) => {
     const list = remaining[category];
     const [chosen] = list.splice(randomInt(list.length), 1);
     if (category === 'base') baseCount++;
-    items.push({ ...chosen, category, categoryLabel: CATEGORY_LABELS[category] });
+    items.push(gameItem(chosen, category));
   };
 
-  for (let i = 0; i < Math.min(MIN_MEAT, rounds); i++) draw('viande');
+  const minMeat = theme.minMeat ?? (remaining.viande ? DEFAULT_MIN_MEAT : 0);
+  for (let i = 0; i < Math.min(minMeat, rounds, remaining.viande?.length || 0); i++) draw('viande');
 
   while (items.length < rounds) {
     const categories = Object.keys(remaining).filter(
@@ -905,8 +1245,49 @@ export const buildRoundItems = (theme, rounds) => {
   return shuffle(items);
 };
 
-// Ce qui est envoyé aux navigateurs (sans les champs internes)
-export const publicItem = ({ id, name, emoji, category, categoryLabel }) => ({ id, name, emoji, category, categoryLabel });
+// Joker « Tour de magie » : un autre ingrédient du plat, pas encore en jeu (même catégorie si possible)
+export const pickReplacement = (theme, usedIds, category) => {
+  const candidates = Object.entries(theme.ingredients)
+    .filter(([c]) => c !== 'base')
+    .flatMap(([c, list]) => list.map((ingredient) => ({ ingredient, category: c })))
+    .filter(({ ingredient }) => !usedIds.has(ingredient.id));
+  if (!candidates.length) return null;
+  const sameCategory = candidates.filter((c) => c.category === category);
+  const chosen = pick(sameCategory.length ? sameCategory : candidates);
+  return gameItem(chosen.ingredient, chosen.category);
+};
+
+// Supermarché : tous les ingrédients de tous les plats, en un exemplaire, à prix aléatoire
+const PRICES = {
+  viande: [2, 6], poisson: [2, 6], fromage: [1, 5], base: [1, 4], boisson: [1, 4],
+  sauce: [1, 3], legume: [1, 3], feculent: [1, 4], fruit: [1, 4], sucre: [1, 3], autre: [1, 3]
+};
+// « in a soft bun », « made with… » : formulations propres à un plat, neutralisées pour la photo
+const neutralEn = (en) => en.replace(/^(?:in|on|made with|made as|wrapped in)\s+/i, '');
+
+export const buildShelves = () => {
+  const seen = new Set();
+  const shelves = [];
+  for (const theme of THEMES) {
+    for (const [category, list] of Object.entries(theme.ingredients)) {
+      for (const ingredient of list) {
+        if (seen.has(ingredient.id)) continue;
+        seen.add(ingredient.id);
+        const [min, max] = PRICES[category] || [1, 4];
+        shelves.push({ ...gameItem({ ...ingredient, en: neutralEn(ingredient.en) }, category), price: randomInt(min, max + 1) });
+      }
+    }
+  }
+  return shelves.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+};
+
+export const shuffleItems = (list) => shuffle([...list]);
+
+// Pour les messages partagés : un aliment mystère n'est jamais nommé
+export const itemLabel = (item) => (item.hidden ? '❓ un ingrédient mystère' : `${item.emoji} ${item.name}`);
+
+// Ce qui est envoyé aux navigateurs (sans les champs internes) : l'id est l'uid de l'exemplaire
+export const publicItem = ({ uid, name, emoji, category, categoryLabel }) => ({ id: uid, name, emoji, category, categoryLabel });
 export const publicTheme = (theme) => theme && {
   id: theme.id,
   name: theme.name,

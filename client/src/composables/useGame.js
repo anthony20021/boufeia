@@ -12,12 +12,19 @@ const state = reactive({
   chat: [],
   deadlineAt: null,
   timerTotal: 0,
+  rpsDeadlineAt: null,
+  rpsTotal: 0,
+  flash: '', // annonce d'un joker, visible par les deux joueurs
   error: ''
 });
+
+const FLASH_MS = 4000;
 
 let socket = null;
 let retryDelay = 1000;
 let errorTimer = null;
+let flashTimer = null;
+let lastFlashId = 0;
 
 const storage = {
   get(store, key) {
@@ -45,6 +52,14 @@ function showError(message) {
   }, 4000);
 }
 
+function showFlash(text) {
+  state.flash = text;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => {
+    state.flash = '';
+  }, FLASH_MS);
+}
+
 function resetToHome() {
   storage.set(sessionStorage, SESSION_KEY, null);
   state.game = null;
@@ -52,10 +67,15 @@ function resetToHome() {
   state.chat = [];
   state.deadlineAt = null;
   state.timerTotal = 0;
+  state.rpsDeadlineAt = null;
+  state.flash = '';
 }
 
 function applyState(game) {
-  if (!state.game || state.game.code !== game.code) state.chat = [];
+  if (!state.game || state.game.code !== game.code) {
+    state.chat = [];
+    lastFlashId = 0;
+  }
   if (!state.game || state.game.code !== game.code || state.game.gameSeq !== game.gameSeq) {
     state.images = {};
   }
@@ -63,6 +83,12 @@ function applyState(game) {
   // Le serveur envoie un temps restant (pas une heure) : insensible au décalage d'horloge
   state.deadlineAt = game.timer ? Date.now() + game.timer.remainingMs : null;
   state.timerTotal = game.timer ? game.timer.totalMs : 0;
+  state.rpsDeadlineAt = game.rps?.timer ? Date.now() + game.rps.timer.remainingMs : null;
+  state.rpsTotal = game.rps?.timer ? game.rps.timer.totalMs : 0;
+  if (game.flash && game.flash.id !== lastFlashId) {
+    lastFlashId = game.flash.id;
+    showFlash(game.flash.text);
+  }
 }
 
 function handleMessage(msg) {
@@ -150,11 +176,16 @@ export function useGame() {
       send({ type: 'join', code, name });
     },
     startGame: () => send({ type: 'start' }),
+    setMode: (mode) => send({ type: 'mode', mode }),
+    chooseJokers: (jokers, ready) => send({ type: 'draft', jokers, ready }),
     bid: (amount) => send({ type: 'bid', amount }),
     pass: () => send({ type: 'pass' }),
-    chop: () => send({ type: 'chop' }),
+    useJoker: (joker, target, target2 = '') => send({ type: 'joker', joker, target, target2 }),
+    mg: (action, data = {}) => send({ type: 'mg', action, ...data }), // action dans le mini-jeu en cours
+    market: (action, data = {}) => send({ type: 'market', action, ...data }), // supermarché étoilé
     rematch: () => send({ type: 'rematch' }),
     sendChat: (text) => send({ type: 'chat', text }),
+    rps: (action, data = {}) => send({ type: 'rps', action, ...data }), // chifoumi du tchat
     leave() {
       if (!send({ type: 'leave' })) resetToHome();
     }

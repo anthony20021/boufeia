@@ -12,6 +12,8 @@ const int = (name, defaultValue, min, max) => {
   return Math.min(max, Math.max(min, value));
 };
 
+const list = (name) => String(process.env[name] || '').split(',').map((v) => v.trim().toLowerCase()).filter(Boolean);
+
 const budgetMin = int('BUDGET_MIN', 15, 1, 1000);
 const bonusMin = int('MINIGAME_BONUS_MIN', 5, 0, 1000);
 const totalRounds = int('TOTAL_ROUNDS', 16, 1, 30);
@@ -36,5 +38,11 @@ export const config = {
   totalRounds,
   minigameRound: int('MINIGAME_ROUND', 7, 1, totalRounds),
   bonusMin,
-  bonusMax: int('MINIGAME_BONUS_MAX', 10, bonusMin, 1000)
+  bonusMax: int('MINIGAME_BONUS_MAX', 10, bonusMin, 1000),
+  // Mini-jeux tirés au sort (vide = tous) : chop, memory, quiz, hangman, reflex, anagram (+ les surprises)
+  minigames: list('MINIGAMES'),
+  // Jokers choisis par chaque joueur en début de partie (0 = pas de jokers)
+  jokersPerPlayer: int('JOKERS_PER_PLAYER', 3, 0, 9),
+  // Mode étoile : rounds d'enchères par manche (plus court qu'une partie normale)
+  starRounds: int('STAR_ROUNDS', 8, 2, totalRounds)
 };

@@ -19,6 +19,9 @@ defineProps({
         <span v-else-if="leading" class="badge badge-lead">en tête</span>
         <span v-else-if="passed" class="badge">a passé</span>
         <span>{{ player.plate.length }} ingrédient{{ player.plate.length > 1 ? 's' : '' }}</span>
+        <span v-if="player.jokersTotal" class="meta-joker" :title="`${player.jokersLeft} joker(s) en main`">🃏 {{ player.jokersLeft }}</span>
+        <span v-if="player.shield" class="badge badge-shield" title="Bouclier levé">🛡️ bouclier</span>
+        <span v-if="player.discount" class="badge badge-sale" title="Prochain aliment à moitié prix">🏷️ -50 %</span>
       </div>
     </div>
     <div class="budget">
